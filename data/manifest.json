@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "coordinateSpace": "MNI152NLin2009cAsym RAS millimetres",
+  "counts": {
+    "importedSurfaceStates": 8,
+    "derivedFlatMaps": 2,
+    "corticalMeshes": 2,
+    "verticesPerHemisphere": 10242,
+    "corticalTriangles": 40960,
+    "parcels": {
+      "dk": 68,
+      "destrieux": 148,
+      "yeo7": 14,
+      "yeo17": 34
+    },
+    "unassignedLabels": 10,
+    "asegStructures": 21,
+    "asegTriangles": 50672
+  },
+  "schemes": [
+    {
+      "id": "dk",
+      "name": "Desikan\u2013Killiany"
+    },
+    {
+      "id": "destrieux",
+      "name": "Destrieux"
+    },
+    {
+      "id": "yeo7",
+      "name": "Yeo 2011 \u00b7 7 networks"
+    },
+    {
+      "id": "yeo17",
+      "name": "Yeo 2011 \u00b7 17 networks"
+    }
+  ],
+  "lobeMappingSource": "https://surfer.nmr.mgh.harvard.edu/fswiki/CorticalParcellation#Lobe_mapping"
+}

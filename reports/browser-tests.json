@@ -1,0 +1,25 @@
+{
+  "passed": 15,
+  "checks": [
+    "Loads from file:// while browser networking is offline",
+    "Anatomical hierarchy and inspector navigate to a real precentral parcel",
+    "Hidden vertex mask persists through every morph and scheme",
+    "Undo and restore all recover visibility and opacity",
+    "Search spans all schemes and selects independent subcortical meshes",
+    "Click picking returns a label ID and an inspectable structure",
+    "All camera presets, free rotation, wheel zoom, and two-finger pinch operate",
+    "All three textured clipping planes expose coordinates and reverse direction",
+    "Legend, labels, automatic exploration, and PNG export work",
+    "Inflated, spherical, and derived flat views render without geometry reload",
+    "Seven-step guided journey runs and keeps hidden rules intact",
+    "Data, methods, full redistribution notices, and template caveat are accessible",
+    "Fullscreen enters and exits",
+    "Desktop, tablet, and narrow layouts have no structural overlaps or overflow",
+    "No JavaScript or WebGL console errors; no HTTP requests during the entire run"
+  ],
+  "errors": [],
+  "networkRequests": [],
+  "browser": "153.0.8010.50",
+  "offline": true,
+  "launchFlags": "No file-access or web-security overrides"
+}

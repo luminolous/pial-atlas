@@ -1,0 +1,44 @@
+{
+  "geometryTestsPassed": 12,
+  "stateTestsPassed": 7,
+  "browserChecksPassed": 15,
+  "compressionBuffersVerified": 61,
+  "maximumPositionComponentErrorMm": 0.005000000000002558,
+  "browser": "153.0.8010.50",
+  "offlineFileURLVerified": true,
+  "consoleErrors": 0,
+  "runtimeNetworkRequests": 0,
+  "viewportsVisuallyReviewed": [
+    [
+      1440,
+      1000
+    ],
+    [
+      1280,
+      800
+    ],
+    [
+      900,
+      900
+    ],
+    [
+      390,
+      844
+    ]
+  ],
+  "spatialMontageReviewed": [
+    "sagittal -24 mm",
+    "coronal -20 mm",
+    "axial +20 mm"
+  ],
+  "coarseAsegMaskDice": 0.8809637481980709,
+  "standaloneHTMLBytes": 2788375,
+  "standaloneHTMLSha256": "6c54590f06285c49775fc46a361b0891940bb5a0fbda8391c03d7124a137f6b5",
+  "limitations": [
+    "Affine population-template alignment, not exact sulcal correspondence or clinical validation.",
+    "The flat representation is a derived projection with a masked antipodal cap.",
+    "WebGL browser verification was performed in Chrome; other browser engines were not independently tested."
+  ],
+  "licenseDecision": "All requested datasets permit redistribution with retained notices. The restricted supplementary BrainCOLOR PDF is not redistributed.",
+  "cleanArchiveRebuildByteIdentical": true
+}

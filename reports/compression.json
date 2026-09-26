@@ -1,0 +1,7 @@
+{
+  "descriptors": 61,
+  "maximumPositionComponentErrorMm": 0.005000000000002558,
+  "exactIndexAndLabelRoundtrip": true,
+  "inlineScriptsParse": true,
+  "noExternalRuntimeAssets": true
+}

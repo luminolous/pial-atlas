@@ -1,0 +1,9 @@
+node_modules/
+.venv/
+.cache/
+__pycache__/
+.pytest_cache/
+pytest-cache-files-*/
+build/
+*.log
+artifacts/*.zip

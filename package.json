@@ -1,0 +1,22 @@
+{
+  "name": "pial-atlas",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "An offline neuroscience atlas built from openly licensed neuroimaging data",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "node --test tests/state.test.mjs && node tests/browser.mjs",
+    "test:state": "node --test tests/state.test.mjs",
+    "test:browser": "node tests/browser.mjs",
+    "package": "python scripts/package_release.py"
+  },
+  "dependencies": {
+    "meshoptimizer": "0.24.0",
+    "three": "0.180.0"
+  },
+  "devDependencies": {
+    "esbuild": "0.25.10",
+    "playwright": "1.55.1"
+  }
+}

@@ -1,0 +1,111 @@
+{
+  "method": "12-parameter affine mutual-information registration, fsaverage T1 (surface/tkReg RAS) to ICBM2009cAsym 2 mm T1. FreeSurfer MNI305-to-MNI152 affine initialization; SimpleITK 2.5.2. No nonlinear warp. Approximate population-template correspondence, not subject-specific sulcal registration.",
+  "seedSource": "https://surfer.nmr.mgh.harvard.edu/fswiki/CoordinateSystems",
+  "seedMNI305ToMNI152": [
+    [
+      0.9975,
+      -0.0073,
+      0.0176,
+      -0.0429
+    ],
+    [
+      0.0146,
+      1.0009,
+      -0.0024,
+      1.5496
+    ],
+    [
+      -0.013,
+      -0.0093,
+      0.9971,
+      1.184
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "surfaceMNI305ToMNI2009cRAS": [
+    [
+      1.0169043836102252,
+      0.0033225630960655806,
+      0.005534239935783137,
+      -6.533556706393626
+    ],
+    [
+      0.012935945342327972,
+      1.016346649560745,
+      -0.021734529926474934,
+      1.603421141319207
+    ],
+    [
+      -0.009181526808435427,
+      -0.012571033465949294,
+      1.0394517310141405,
+      0.5925520422423916
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "asegVoxelToSurfaceRAS": [
+    [
+      -1.0,
+      0.0,
+      0.0,
+      128.0
+    ],
+    [
+      0.0,
+      0.0,
+      1.0,
+      -128.0
+    ],
+    [
+      0.0,
+      -1.0,
+      0.0,
+      128.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "targetVoxelToMNI2009cRAS": [
+    [
+      2.0,
+      0.0,
+      0.0,
+      -96.5
+    ],
+    [
+      0.0,
+      2.0,
+      0.0,
+      -132.5
+    ],
+    [
+      0.0,
+      0.0,
+      2.0,
+      -78.5
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "metric": -0.14491069486545344,
+  "stop": "GradientDescentOptimizerv4Template: Convergence checker passed at iteration 11.",
+  "seed": 20260926
+}

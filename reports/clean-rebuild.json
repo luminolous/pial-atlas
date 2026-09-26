@@ -1,0 +1,6 @@
+{
+  "identical": true,
+  "bytes": 2788375,
+  "sha256": "6c54590f06285c49775fc46a361b0891940bb5a0fbda8391c03d7124a137f6b5",
+  "method": "Extracted the clean release, installed package-lock.json dependencies with npm ci --offline --ignore-scripts, and rebuilt from the shipped compressed assets without raw datasets or intermediate buffers."
+}
