@@ -54,6 +54,26 @@ cerebral white matter are not presented as additional deep structures.
 
 ## Scientific references
 
+### Display palette attribution
+
+The default anatomical DK/Destrieux palette is original application display
+design; its colours are defined in `pipeline/preprocess.py`, not copied from an
+icon set or an external colour table. Default network colours come from the
+imported FreeSurfer Yeo annotation tables. Non-cortical exploration uses the
+FreeSurfer aseg LUT colours; its intact-brain context material is warm grey.
+
+The optional accessible palette incorporates nine RGB values from Paul Tol's
+muted qualitative scheme. The author's original source at
+<https://sronpersonalpages.nl/~pault/data/tol_colors.py> explicitly says
+"License: Standard 3-clause BSD" and "Copyright (c) 2022, Paul Tol". These
+terms were checked before inclusion. `licenses/Paul-Tol.txt` preserves the
+attribution and complete BSD conditions and disclaimer. No palette images,
+PDF pages, or downloaded Python implementation are included. The deterministic
+parcel-to-colour assignment is original application code. See the README for
+colour reuse and accessibility limitations.
+
+### Research publications
+
 - Fischl et al. (1999), *High-resolution intersubject averaging and a coordinate
   system for the cortical surface*. [doi:10.1002/(SICI)1097-0193(1999)8:4<272::AID-HBM10>3.0.CO;2-4](https://doi.org/10.1002/(SICI)1097-0193(1999)8:4%3C272::AID-HBM10%3E3.0.CO;2-4).
 - Desikan et al. (2006), *An automated labeling system for subdividing the human

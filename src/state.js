@@ -2,7 +2,7 @@ export const SCHEMES=['dk','destrieux','yeo7','yeo17'];
 export const SURFACES=['pial','white','inflated','sphere','flat'];
 export const LOBES=['unassigned','frontal','parietal','temporal','occipital','cingulate','insula'];
 export function defaultState() {
-  return {scheme:'dk',morph:0,separation:0,lift:0,material:'anatomical',opacity:1,hiddenGroups:[],hiddenParcels:[],hiddenStructures:[],groupOpacity:{},isolation:null,selection:null,nav:'brain',labels:false,auto:false,clips:[{enabled:false,position:0,reverse:false},{enabled:false,position:-20,reverse:false},{enabled:false,position:20,reverse:false}]};
+  return {scheme:'dk',morph:0,separation:0,lift:0,material:'anatomical',curvatureShading:true,colourblindSafe:false,opacity:1,hiddenGroups:[],hiddenParcels:[],hiddenStructures:[],groupOpacity:{},isolation:null,selection:null,nav:'brain',labels:false,auto:false,clips:[{enabled:false,position:0,reverse:false},{enabled:false,position:-20,reverse:false},{enabled:false,position:20,reverse:false}]};
 }
 export class Store {
   constructor(){this.state=defaultState();this.history=[];this.listeners=new Set();this.grouping=false;}

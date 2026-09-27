@@ -103,7 +103,7 @@ try{
     await page.locator('#reset').click();await settled();
   });
   await check('Legend, labels, automatic exploration, and PNG export work',async()=>{
-    await page.locator('#legend-tab').click();assert.equal(await page.locator('#legend-list .structure-row').count(),72);
+    await page.locator('#legend-tab').click();assert.equal(await page.locator('#legend-list .structure-row').count(),35);
     await page.locator('#labels-toggle').click();await settled();assert.ok(await page.locator('.anatomical-label').count()>0);
     await scheme('yeo7');await settled();assert.ok(await page.locator('.anatomical-label').count()>0);await scheme('dk');
     await page.locator('#auto-toggle').click();assert.equal(await page.evaluate(()=>atlasApp.renderer.controls.autoRotate),true);await page.locator('#auto-toggle').click();

@@ -1,6 +1,6 @@
 {
-  "geometryTestsPassed": 12,
-  "stateTestsPassed": 12,
+  "geometryTestsPassed": 20,
+  "stateTestsPassed": 16,
   "browserChecksPassed": 15,
   "polishChecksPassed": 27,
   "polishScreenshots": 57,
@@ -50,13 +50,23 @@
     "axial +20 mm"
   ],
   "coarseAsegMaskDice": 0.8809637481980709,
-  "standaloneHTMLBytes": 5347530,
-  "standaloneHTMLSha256": "e96bf8962f91ae7b53e2d05640aab4e97c022ee491f69e4cda3daa2df4e257dd",
+  "standaloneHTMLBytes": 5366059,
+  "standaloneHTMLSha256": "66eedeeb9eaebc12dfcb5531963b3f5e4317a287950f163caf9b9b655932ab08",
   "limitations": [
     "Affine population-template alignment, not exact sulcal correspondence or clinical validation.",
     "The flat representation is a derived projection with a masked antipodal cap.",
     "WebGL browser verification was performed in Chrome; other browser engines were not independently tested."
   ],
   "licenseDecision": "All requested datasets permit redistribution with retained notices. The restricted supplementary BrainCOLOR PDF is not redistributed.",
+  "appearanceChecksPassed": 30,
+  "appearanceScreenshots": 66,
+  "identifiedInferiorMesh": {
+    "name": "Brainstem",
+    "asegLabel": 16,
+    "baselineOpacity": 1,
+    "method": "Label-ID ray picks on the inferior visible mesh in the left lateral view.",
+    "fix": "Opaque, front-sided, matte warm-grey context material; source aseg colour during lift, direct selection, or explicit Structures browsing."
+  },
+  "paletteLicence": "Paul Tol muted colours: BSD-3-Clause, with retained notice.",
   "cleanArchiveRebuildByteIdentical": true
 }

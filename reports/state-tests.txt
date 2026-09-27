@@ -1,82 +1,106 @@
 TAP version 13
-# Subtest: Lift layout covers every source structure and has no intersecting AABBs
-ok 1 - Lift layout covers every source structure and has no intersecting AABBs
+# Subtest: Paired cortical legend covers every source label exactly once and excludes aseg
+ok 1 - Paired cortical legend covers every source label exactly once and excludes aseg
   ---
-  duration_ms: 14.4038
+  duration_ms: 2.1593
+  type: 'test'
+  ...
+# Subtest: Accessible palette covers all schemes, preserves bilateral label identity and original colours
+ok 2 - Accessible palette covers all schemes, preserves bilateral label identity and original colours
+  ---
+  duration_ms: 133.0198
+  type: 'test'
+  ...
+# Subtest: Deep context colour follows lift, selection, and explicit Structures navigation
+ok 3 - Deep context colour follows lift, selection, and explicit Structures navigation
+  ---
+  duration_ms: 0.6013
+  type: 'test'
+  ...
+# Subtest: Appearance controls participate in undo and reset without clearing hidden masks
+ok 4 - Appearance controls participate in undo and reset without clearing hidden masks
+  ---
+  duration_ms: 0.2901
+  type: 'test'
+  ...
+# Subtest: Lift layout covers every source structure and has no intersecting AABBs
+ok 5 - Lift layout covers every source structure and has no intersecting AABBs
+  ---
+  duration_ms: 16.1379
   type: 'test'
   ...
 # Subtest: Barycentric categorical picking combines repeated labels without inventing IDs
-ok 2 - Barycentric categorical picking combines repeated labels without inventing IDs
+ok 6 - Barycentric categorical picking combines repeated labels without inventing IDs
   ---
-  duration_ms: 0.1873
+  duration_ms: 0.2301
   type: 'test'
   ...
 # Subtest: GPU triangle corners preserve every source morph vertex and all label schemes
-ok 3 - GPU triangle corners preserve every source morph vertex and all label schemes
+ok 7 - GPU triangle corners preserve every source morph vertex and all label schemes
   ---
-  duration_ms: 277.2475
+  duration_ms: 348.1226
   type: 'test'
   ...
 # Subtest: Motion tokens, easing endpoints, and reduced-motion completion are deterministic
-ok 4 - Motion tokens, easing endpoints, and reduced-motion completion are deterministic
+ok 8 - Motion tokens, easing endpoints, and reduced-motion completion are deterministic
   ---
-  duration_ms: 1.4663
+  duration_ms: 1.0681
   type: 'test'
   ...
 # Subtest: Filtered boundary fields retain every named parcel and picking returns only source IDs
-ok 5 - Filtered boundary fields retain every named parcel and picking returns only source IDs
+ok 9 - Filtered boundary fields retain every named parcel and picking returns only source IDs
   ---
-  duration_ms: 2176.4348
+  duration_ms: 2710.8156
   type: 'test'
   ...
 # Subtest: A hidden parcel remains hidden after scheme, morph, layout, and material changes
-ok 6 - A hidden parcel remains hidden after scheme, morph, layout, and material changes
+ok 10 - A hidden parcel remains hidden after scheme, morph, layout, and material changes
   ---
-  duration_ms: 2.5381
+  duration_ms: 2.1783
   type: 'test'
   ...
 # Subtest: Hemisphere and lobe masks remain independent of active scheme
-ok 7 - Hemisphere and lobe masks remain independent of active scheme
+ok 11 - Hemisphere and lobe masks remain independent of active scheme
   ---
-  duration_ms: 0.1334
+  duration_ms: 0.1447
   type: 'test'
   ...
 # Subtest: Undo restores grouped slider changes, visibility, and reset state
-ok 8 - Undo restores grouped slider changes, visibility, and reset state
+ok 12 - Undo restores grouped slider changes, visibility, and reset state
   ---
-  duration_ms: 1.6474
+  duration_ms: 1.8076
   type: 'test'
   ...
 # Subtest: Isolation cannot resurrect explicitly hidden anatomy
-ok 9 - Isolation cannot resurrect explicitly hidden anatomy
+ok 13 - Isolation cannot resurrect explicitly hidden anatomy
   ---
-  duration_ms: 0.1746
+  duration_ms: 0.1782
   type: 'test'
   ...
 # Subtest: All imported labels and structures have reachable hierarchy membership
-ok 10 - All imported labels and structures have reachable hierarchy membership
+ok 14 - All imported labels and structures have reachable hierarchy membership
   ---
-  duration_ms: 0.9848
+  duration_ms: 1.0416
   type: 'test'
   ...
 # Subtest: Group opacity composes with hidden masks and restore all
-ok 11 - Group opacity composes with hidden masks and restore all
+ok 15 - Group opacity composes with hidden masks and restore all
   ---
-  duration_ms: 0.2542
+  duration_ms: 0.2626
   type: 'test'
   ...
 # Subtest: Repeated identical input events do not consume an undo step
-ok 12 - Repeated identical input events do not consume an undo step
+ok 16 - Repeated identical input events do not consume an undo step
   ---
-  duration_ms: 0.1588
+  duration_ms: 0.1598
   type: 'test'
   ...
-1..12
-# tests 12
+1..16
+# tests 16
 # suites 0
-# pass 12
+# pass 16
 # fail 0
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 2902.453
+# duration_ms 3564.8906

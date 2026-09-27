@@ -60,7 +60,7 @@ hemisphere. It does not independently decimate morph targets.
 
 Each hemisphere retains one shared source topology and four integer label IDs
 per vertex. The GPU-facing geometry expands triangle corners once to carry
-barycentric coordinates, source label attributes, sulcal depth, visibility, and
+barycentric coordinates, source label attributes, average convexity (sulc), visibility, and
 the five corresponding positions and normals. The two cortical meshes are never
 split into separate parcel meshes, and geometry remains fixed across schemes.
 The 81,924 unique source vertices become 491,520 GPU triangle corners; these
@@ -87,7 +87,7 @@ source geometry and all categorical fields are shared across every morph state.
 Meshoptimizer 0.24 compresses position buffers and index sequences. The index
 sequence codec preserves exact order. Position coordinates are quantized to
 0.01 mm with an actual maximum component error of 0.005 mm. Labels, masks,
-sulcal depth, and the 8-bit T1 display volume are losslessly gzip-compressed.
+average convexity (sulc), and the 8-bit T1 display volume are losslessly gzip-compressed.
 The standalone HTML embeds the compressed payload, decoder WebAssembly, Three.js,
 JavaScript, CSS, and all licence notices. Nothing is loaded from a server or CDN.
 
@@ -177,6 +177,28 @@ and the seven visible group labels are independently checked for collisions.
 The lift is a non-anatomical layout; reducing it to zero restores every original
 source position. The framing includes the cortex as anatomical context.
 
+## Context appearance and area metadata
+
+`src/appearance.js` groups hemisphere labels for the compact legend, assigns
+the optional Paul Tol palette on the cortical adjacency graph, and decides
+when a deep mesh uses source aseg colours. The renderer keeps a separate
+Structures-tab context so merely displaying the root Brain list does not colour
+deep tissue. None of these operations modify source IDs or hidden masks.
+Palette transitions update RGB only; visibility transitions update lookup
+alpha independently. Deep tissue is opaque and front-sided at full opacity,
+with transparent rendering enabled during fades or explicit glass/opacity use.
+
+The pipeline integrates native white triangles before registration, attributing
+one third of each triangle's area to each corner's label. Parcel metadata
+contains `whiteAreaMm2`, `cortexAreaMm2`, and `areaPercent`. The denominator is
+the same hemisphere/scheme's assigned cortex. Unassigned labels retain their
+measured area but have a null percentage because they are excluded.
+
+The sulc source attribute already shares fsaverage6 vertex correspondence. A
+single combined-hemisphere 95th-percentile absolute scale drives an HSL
+lightness operation of up to ±18% after lighting and before selection dimming.
+The Curvature shading toggle changes a uniform, without replacing geometry.
+
 ## Additional layers
 
 `LayerRegistry` registers scene objects with an ID, coordinate-space declaration,
@@ -195,6 +217,7 @@ Those features and their data are not implemented in this release.
 - `src/data.js`: offline decompression and typed array reconstruction.
 - `src/renderer.js`: layers, cameras, Three.js rendering, morphs, picking, slices.
 - `src/cortex.js`: categorical boundary filtering, GPU attributes, and shaders.
+- `src/appearance.js`: paired area legends, accessible colours, and deep context.
 - `src/lift.js`: measured display packing without moving source coordinates.
 - `src/motion.js`: shared motion tokens and the internal tween utility.
 - `src/brand.js`: original monoline brain glyph shared by UI, favicon, and PNG.

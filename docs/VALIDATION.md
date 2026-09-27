@@ -8,10 +8,11 @@ anatomical accuracy in individual people.
 
 | Suite | Result | Evidence |
 | --- | --- | --- |
-| Neuroimaging geometry and coordinate tests | 12 passed | `reports/geometry-tests.xml` |
-| State, hierarchy, visibility, lift, categorical fields, and motion | 12 passed | `reports/state-tests.txt` |
+| Neuroimaging geometry, coordinate, and white-area tests | 20 passed | `reports/geometry-tests.xml` |
+| State, hierarchy, visibility, lift, categorical fields, motion, and appearance | 16 passed | `reports/state-tests.txt` |
 | Real-browser interaction and responsive layout checks | 15 passed | `reports/browser-tests.json` |
 | New layout, rendering, motion, and contrast checks | 27 passed | `reports/polish-tests.json` |
+| Appearance, paired legend, palette, and sulc shading checks | 30 passed | `reports/appearance-tests.json` |
 | Compression round trip | 73 typed buffers verified | `reports/compression.json` |
 | Maximum coordinate component quantization error | 0.005 mm | `reports/compression.json` |
 | Runtime HTTP requests with the browser offline | 0 | `reports/browser-tests.json` |
@@ -93,7 +94,7 @@ its subject remains outside the card rectangle. All seven lifted group labels
 and all 27 projected structure boxes are checked for collisions. A separate
 unit test checks a minimum 16 mm gap between the measured 3D AABBs.
 
-Tests also verify list reachability at the bottom of the 150-label Destrieux
+Tests also verify list reachability at the bottom of the 75-row paired Destrieux
 legend, both scroll shadows, a visible footer, pinned inspector actions,
 keyboard tooltips, camera/material active states, secondary-text WCAG AA
 contrast, colour preservation, and reduced-motion completion. The source
@@ -108,6 +109,36 @@ placement, source-resolution boundaries, cropped lift context, conservative
 label collision estimates, continuous lift-camera updates, excessive popover
 height, first-step journey framing, and footer alerts covering controls.
 The final browser run reported no console errors.
+
+## Appearance revision
+
+The appearance suite adds 30 checks and 66 screenshots at 1920×1080 and
+1280×720. Each of the four schemes is reviewed intact, with the accessible
+palette, with a cortical selection, lifted, and with a selected brainstem.
+The area tooltip, compact 36 px rows, per-hemisphere visibility, filter field,
+tab-specific source colours, and the 2×3 camera grid are exercised. The
+curvature toggle is compared on/off in all five surface states at both sizes;
+interior rendered pixels verify both darkening and lightening within ±18% relative
+lightness, allowing only byte-quantization tolerance, with the camera projection
+held fixed. Source geometry and all label attributes remain unchanged.
+
+Eight independent geometry cases integrate the raw native white triangles
+for all hemisphere/scheme combinations. They verify complete area accounting,
+the exclusion of each scheme's medial wall, and assigned percentages summing
+to 100%. Legend percentages are hemisphere percentages, not vertex fractions.
+
+The inferior mesh seen in the baseline left lateral view was identified by
+actual label-ID ray picks as **Brainstem, aseg label 16**. Its baseline opacity
+was 1; the baseline screenshot is `reports/brainstem-before.png`. Its appearance
+came from the lit blue-grey material. The context view
+now uses an opaque, front-sided matte warm grey. Direct selection, positive
+lift, and explicit Structures navigation restore the original source colour.
+The diagnosis and material checks are recorded in `appearance-tests.json`.
+
+The optional palette uses the original Paul Tol muted colours under his
+BSD-3-Clause notice. Larger schemes reuse the nine colours; parcel boundaries
+and names remain necessary for unambiguous identification. No dataset was
+added or excluded by this revision, and imported counts remain unchanged.
 
 ## Limits
 

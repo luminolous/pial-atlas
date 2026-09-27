@@ -4,6 +4,7 @@ import {cortexGeometry,cortexMaterial,labelFields,fieldPick} from './cortex.js';
 import {MOTION,ease,duration,reducedMotion,Tweens} from './motion.js';
 import {buildLiftLayout} from './lift.js';
 import {BRAIN_PATHS} from './brand.js';
+import {accessibleColours,deepUsesSourceColour,WARM_GREY} from './appearance.js';
 import { SCHEMES, SURFACES, cortexVisibility, subcorticalVisibility } from './state.js';
 
 // Future layers implement this small contract. Tracts, EEG, and connectomes are
@@ -43,8 +44,12 @@ export class AtlasRenderer {
     const palette=new Float32Array(512*4);
     for(const p of atlas.parcels){const c=new THREE.Color().setRGB(...p.color.map(v=>v/255),THREE.SRGBColorSpace);palette.set([c.r,c.g,c.b,1],p.id*4);}
     this.palette=new THREE.DataTexture(palette,512,1,THREE.RGBAFormat,THREE.FloatType);this.palette.needsUpdate=true;
+    this.safeColours=accessibleColours(atlas);this.structuresTab=true;
     this.uniforms={uHasHidden:{value:false},uPreviousScheme:{value:0},uSchemeMix:{value:1},uHovered:{value:-1},uHoverScheme:{value:0},uScheme:{value:0},uPalette:{value:this.palette},uMode:{value:0},uSelected:{value:-1},uSelectionScheme:{value:0},uFlat:{value:0},uMorph:{value:0}};
     this.cortices=[];this.deep=[];
+    const sulcMagnitudes=atlas.surfaces.flatMap(s=>Array.from(s.sulc,Math.abs)).sort((a,b)=>a-b);
+    this.uniforms.uSulcScale={value:sulcMagnitudes[Math.floor(sulcMagnitudes.length*.95)]};
+    this.uniforms.uCurvature={value:1};
     for(const s of atlas.surfaces){
       const field=labelFields(s),g=cortexGeometry(s),mat=cortexMaterial(this.uniforms,this.clipPlanes,field);
       const mesh=new THREE.Mesh(g,mat);mesh.name=s.hemisphere;
@@ -55,7 +60,7 @@ export class AtlasRenderer {
     for(const s of atlas.structures){
       const g=new THREE.BufferGeometry();g.setIndex(new THREE.BufferAttribute(s.index,1));g.setAttribute('position',new THREE.BufferAttribute(s.positions,3));g.computeVertexNormals();g.computeBoundingSphere();
       const color=new THREE.Color().setRGB(...s.color.map(c=>c/255),THREE.SRGBColorSpace);
-      const mat=new THREE.MeshStandardMaterial({color,roughness:.53,metalness:.02,transparent:true,side:THREE.DoubleSide,clippingPlanes:this.clipPlanes});
+      const mat=new THREE.MeshStandardMaterial({color,roughness:1,metalness:0,transparent:false,side:THREE.FrontSide,clippingPlanes:this.clipPlanes});
       const mesh=new THREE.Mesh(g,mat);mesh.userData={type:'structure',structure:s,baseColor:color.clone()};this.brain.add(mesh);this.deep.push(mesh);
     }
     this.sliceGroup=new THREE.Group();this.layers.register('mni-slices',{object:this.sliceGroup,coordinateSpace:atlas.coordinateSpace});this.sliceMeshes=[];
@@ -91,6 +96,12 @@ export class AtlasRenderer {
   }
   update(state){
     const previous=this.state;this.state=state;
+    this.uniforms.uCurvature.value=state.curvatureShading?1:0;
+    if(!previous||previous.colourblindSafe!==state.colourblindSafe){
+      const data=this.palette.image.data,from=data.slice(),target=data.slice();
+      for(const p of this.atlas.parcels){const c=new THREE.Color().setRGB(...(state.colourblindSafe?this.safeColours.get(p.id):p.color).map(v=>v/255),THREE.SRGBColorSpace);target.set([c.r,c.g,c.b],p.id*4);}
+      this.tweens.to('palette',0,1,'scheme',t=>{for(const p of this.atlas.parcels)for(let c=0;c<3;c++){const i=p.id*4+c;data[i]=from[i]+(target[i]-from[i])*t;}this.palette.needsUpdate=true;});
+    }
     const scheme=SCHEMES.indexOf(state.scheme);
     if(scheme!==this.uniforms.uScheme.value){
       this.uniforms.uPreviousScheme.value=this.uniforms.uScheme.value;this.uniforms.uScheme.value=scheme;
@@ -122,9 +133,11 @@ export class AtlasRenderer {
     for(const mesh of this.deep){
       const s=mesh.userData.structure,alpha=subcorticalVisibility(state,s)*(state.material==='glass'?.72:1);
       mesh.visible=mesh.visible||alpha>.005;
-      this.tweens.to('opacity-'+s.id,mesh.material.opacity,alpha,'ui',value=>{mesh.material.opacity=value;mesh.visible=value>.005;});
+      this.tweens.to('opacity-'+s.id,mesh.material.opacity,alpha,'ui',value=>{mesh.material.opacity=value;mesh.visible=value>.005;const transparent=value<.999;if(mesh.material.transparent!==transparent){mesh.material.transparent=transparent;mesh.material.needsUpdate=true;}});
       mesh.material.depthWrite=alpha>.98;mesh.material.wireframe=state.material==='wireframe';
-      mesh.material.color.copy(state.material==='porcelain'?new THREE.Color('#cbd4db'):mesh.userData.baseColor);
+      const sourceColour=deepUsesSourceColour(state,s,this.structuresTab);
+      mesh.userData.sourceColour=sourceColour;
+      mesh.material.color.copy(sourceColour?mesh.userData.baseColor:new THREE.Color(WARM_GREY));
       const isSelected=selected?.type==='structure'&&selected.id===s.id;
       if(selected?.type==='structure'&&!isSelected){const c=mesh.material.color,g=c.r*.2126+c.g*.7152+c.b*.0722;c.lerp(new THREE.Color(g,g,g),.65).multiplyScalar(.35);}
       mesh.material.emissive.copy(isSelected?mesh.userData.baseColor:new THREE.Color(0));mesh.material.emissiveIntensity=isSelected?.12:0;

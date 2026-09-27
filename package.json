@@ -7,8 +7,8 @@
   "scripts": {
     "build": "node scripts/build.mjs",
     "test": "npm run test:state && npm run test:browser",
-    "test:state": "node --test tests/state.test.mjs tests/polish.test.mjs",
-    "test:browser": "node tests/browser.mjs && node tests/browser-polish.mjs",
+    "test:state": "node --test tests/state.test.mjs tests/polish.test.mjs tests/appearance.test.mjs",
+    "test:browser": "node tests/browser.mjs && node tests/browser-polish.mjs && node tests/browser-appearance.mjs",
     "package": "python scripts/package_release.py"
   },
   "dependencies": {

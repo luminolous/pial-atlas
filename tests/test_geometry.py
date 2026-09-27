@@ -22,6 +22,27 @@ def test_raw_source_checksums():
         assert hashlib.sha256((RAW/name).read_bytes()).hexdigest()==source['sha256']
 
 @pytest.mark.parametrize('hemi',['lh','rh'])
+@pytest.mark.parametrize('scheme',['dk','destrieux','yeo7','yeo17'])
+def test_white_surface_area_percentages(hemi,scheme):
+    vertices,faces=nib.freesurfer.read_geometry(RAW/'fsaverage6'/f'{hemi}.white')
+    tri=vertices[faces]
+    areas=np.linalg.norm(np.cross(tri[:,1]-tri[:,0],tri[:,2]-tri[:,0]),axis=1)/2
+    surface=next(s for s in META['surfaces'] if s['hemisphere']==hemi)
+    labels=array(surface['labels'])[:,['dk','destrieux','yeo7','yeo17'].index(scheme)]
+    parcels=[p for p in META['parcels'] if p['hemisphere']==hemi and p['scheme']==scheme]
+    # Independently integrate each labelled corner's one-third triangle share.
+    for p in parcels:
+        expected=np.sum(areas*np.sum(labels[faces]==p['id'],axis=1)/3)
+        assert p['whiteAreaMm2']==pytest.approx(expected,rel=1e-10)
+        assert p['areaPercent'] is None if not p['assigned'] else p['areaPercent']>0
+    denominator=sum(p['whiteAreaMm2'] for p in parcels if p['assigned'])
+    assert sum(p['whiteAreaMm2'] for p in parcels)==pytest.approx(areas.sum())
+    assert sum(p['areaPercent'] for p in parcels if p['assigned'])==pytest.approx(100)
+    for p in parcels:
+        assert p['cortexAreaMm2']==pytest.approx(denominator)
+        if p['assigned']:assert p['areaPercent']==pytest.approx(100*p['whiteAreaMm2']/denominator)
+
+@pytest.mark.parametrize('hemi',['lh','rh'])
 def test_shared_topology_and_vertex_correspondence(hemi):
     surface=next(s for s in META['surfaces'] if s['hemisphere']==hemi)
     index=array(surface['index'])

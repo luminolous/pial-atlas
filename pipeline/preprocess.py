@@ -186,6 +186,9 @@ def main():
             positions[state]+=positions['pial'].mean(0)
         positions['flat']=flat_map(raw['sphere'],hemi)
         labels=np.zeros((40962,4),dtype=np.uint16)
+        white_triangles=raw['white'][faces]
+        triangle_areas=np.linalg.norm(np.cross(white_triangles[:,1]-white_triangles[:,0],white_triangles[:,2]-white_triangles[:,0]),axis=1)/2
+        vertex_areas=np.bincount(faces.ravel(),weights=np.repeat(triangle_areas/3,3),minlength=len(raw['white']))
         dkl,_,dkn=nib.freesurfer.read_annot(RAW/'fsaverage6'/f'{hemi}.aparc.annot')
         lobes=np.array([LOBE_IDS.get(DK_LOBE.get(dkn[x].decode(),'unassigned'),0) if x>=0 else 0 for x in dkl],np.uint8)
         for si,(scheme,file,_) in enumerate(SCHEMES):
@@ -215,7 +218,13 @@ def main():
                 if not assigned:color=PALETTE['unassigned']
                 labels[ids,si]=nextid
                 meta['parcels'].append({'id':nextid,'key':f'{hemi}:{scheme}:{li}','localId':li,'nativeName':native,'name':name,'hemisphere':hemi,'scheme':scheme,'lobe':lobe,'lobeOverlap':overlaps,'assigned':assigned,'vertices':len(ids),'centroid':positions['pial'][ids].mean(0).round(3).tolist(),'color':color,'source':f'FreeSurfer fsaverage6 / {file}.annot'})
+                meta['parcels'][-1]['whiteAreaMm2']=float(vertex_areas[ids].sum())
                 nextid+=1
+            scheme_parcels=[p for p in meta['parcels'] if p['hemisphere']==hemi and p['scheme']==scheme]
+            cortex_area=sum(p['whiteAreaMm2'] for p in scheme_parcels if p['assigned'])
+            for p in scheme_parcels:
+                p['cortexAreaMm2']=cortex_area
+                p['areaPercent']=100*p['whiteAreaMm2']/cortex_area if p['assigned'] else None
         sulc=nib.freesurfer.read_morph_data(RAW/'fsaverage6'/f'{hemi}.sulc')
         flat_edges=np.linalg.norm(positions['flat'][faces]-positions['flat'][np.roll(faces,1,axis=1)],axis=2)
         sphere_unit=raw['sphere']/np.linalg.norm(raw['sphere'],axis=1)[:,None]

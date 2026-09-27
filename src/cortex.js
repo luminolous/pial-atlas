@@ -81,6 +81,13 @@ export function cortexMaterial(uniforms,clippingPlanes,field){
       uniform int uScheme; uniform int uPreviousScheme; uniform float uSchemeMix;
       uniform sampler2D uPalette; uniform int uMode; uniform float uSelected; uniform int uSelectionScheme; uniform bool uHasHidden;
       uniform float uHovered; uniform int uHoverScheme; uniform float uFlat;
+      uniform float uCurvature; uniform float uSulcScale;
+      vec3 shadeSulcus(vec3 colour){
+        float lightness=(max(max(colour.r,colour.g),colour.b)+min(min(colour.r,colour.g),colour.b))*0.5;
+        float adjusted=clamp(lightness*(1.0-0.18*uCurvature*clamp(vSulcus/uSulcScale,-1.0,1.0)),0.0,1.0);
+        float scale=(1.0-abs(2.0*adjusted-1.0))/max(1.0-abs(2.0*lightness-1.0),0.00001);
+        return clamp(vec3(adjusted)+(colour-vec3(lightness))*scale,0.0,1.0);
+      }
       uniform sampler2D uLabelField; uniform vec2 uFieldSize; flat varying float vAtlasFace;
       vec4 fieldAt(float index){return texture2D(uLabelField,vec2((mod(index,uFieldSize.x)+0.5)/uFieldSize.x,(floor(index/uFieldSize.x)+0.5)/uFieldSize.y));}
       float channel(vec4 labels,int scheme){return scheme==0?labels.x:scheme==1?labels.y:scheme==2?labels.z:labels.w;}
@@ -113,9 +120,10 @@ export function cortexMaterial(uniforms,clippingPlanes,field){
       vec3 hoverRegion=region(uHoverScheme);bool hovered=abs(hoverRegion.x-uHovered)<0.1;
       if(selected){float edge=1.0-smoothstep(0.0,max(fwidth(selectedRegion.z)*2.5,0.0001),selectedRegion.z);base=mix(base,vec3(0.94),edge*0.8);}
       if(hovered){float edge=1.0-smoothstep(0.0,max(fwidth(hoverRegion.z)*1.8,0.0001),hoverRegion.z);base=mix(base,vec3(1.0),0.10+edge*0.35);}
-      diffuseColor.rgb=base*clamp(0.92-0.12*vSulcus,0.66,1.04);
+      diffuseColor.rgb=base;
       diffuseColor.a*=vAtlasVisibility*labelAlpha*(uMode==3?0.23:1.0)*mix(1.0,vFlatValidity,smoothstep(0.9,1.0,uFlat));`)
       .replace('#include <colorspace_fragment>',`#include <colorspace_fragment>
+      gl_FragColor.rgb=shadeSulcus(gl_FragColor.rgb);
       if(uSelected>0.0&&!selected){float grey=dot(gl_FragColor.rgb,vec3(0.2126,0.7152,0.0722));gl_FragColor.rgb=mix(vec3(grey),gl_FragColor.rgb,0.35)*0.35;}
       else if(uSelected<0.0&&uHovered>0.0&&!hovered){float grey=dot(gl_FragColor.rgb,vec3(0.2126,0.7152,0.0722));gl_FragColor.rgb=mix(vec3(grey),gl_FragColor.rgb,0.70)*0.70;}`);
   };

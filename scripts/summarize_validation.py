@@ -15,6 +15,7 @@ def main():
     state=(REPORTS/'state-tests.txt').read_text(encoding='utf-8-sig')
     browser=json.loads((REPORTS/'browser-tests.json').read_text())
     polish=json.loads((REPORTS/'polish-tests.json').read_text(encoding='utf-8'))
+    appearance=json.loads((REPORTS/'appearance-tests.json').read_text(encoding='utf-8'))
     compression=json.loads((REPORTS/'compression.json').read_text())
     build=json.loads((REPORTS/'build.json').read_text())
     alignment=json.loads((REPORTS/'alignment-metrics.json').read_text())
@@ -22,7 +23,9 @@ def main():
     assert re.search(r'# fail 0\b',state)
     assert browser['errors']==[] and browser['networkRequests']==[] and 'failure' not in browser
     assert polish['errors']==[] and polish['networkRequests']==[] and 'failure' not in polish
+    assert appearance['errors']==[] and appearance['networkRequests']==[] and 'failure' not in appearance
     summary={'geometryTestsPassed':int(suite.attrib['tests']),'stateTestsPassed':int(re.search(r'# pass (\d+)',state)[1]),'browserChecksPassed':browser['passed'],'polishChecksPassed':polish['passed'],'polishScreenshots':len(polish['screenshots']),'compressionBuffersVerified':compression['descriptors'],'maximumPositionComponentErrorMm':compression['maximumPositionComponentErrorMm'],'browser':browser['browser'],'offlineFileURLVerified':True,'consoleErrors':0,'runtimeNetworkRequests':0,'viewportsVisuallyReviewed':[[1920,1080],[1440,900],[1280,720],[1440,1000],[1280,800],[900,900],[390,844]],'additionalShortHeightsTested':[600,480],'spatialMontageReviewed':['sagittal -24 mm','coronal -20 mm','axial +20 mm'],'coarseAsegMaskDice':alignment['asegVsMNI2009cBrainMaskDice'],'standaloneHTMLBytes':build['bytes'],'standaloneHTMLSha256':build['sha256'],'limitations':['Affine population-template alignment, not exact sulcal correspondence or clinical validation.','The flat representation is a derived projection with a masked antipodal cap.','WebGL browser verification was performed in Chrome; other browser engines were not independently tested.'],'licenseDecision':'All requested datasets permit redistribution with retained notices. The restricted supplementary BrainCOLOR PDF is not redistributed.'}
+    summary.update(appearanceChecksPassed=appearance['passed'],appearanceScreenshots=len(appearance['screenshots']),identifiedInferiorMesh=appearance['identifiedMesh'],paletteLicence='Paul Tol muted colours: BSD-3-Clause, with retained notice.')
     if (REPORTS/'clean-rebuild.json').exists():
         clean=json.loads((REPORTS/'clean-rebuild.json').read_text())
         assert clean['identical'] and clean['sha256']==build['sha256']

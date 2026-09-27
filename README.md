@@ -66,7 +66,70 @@ The guided journey uses its own dock, with the camera offset into the available
 space. Operating-system reduced-motion settings disable camera, layout, and
 colour animations and automatic rotation.
 
-## What is included
+## Colours, shading, and area measurements
+
+The original application palettes remain the default. Desikan–Killiany and
+Destrieux use the atlas's muted lobe palette in `pipeline/preprocess.py`, with
+small deterministic label variations. These are original display colours, not
+the FreeSurfer annotation table's RGB values. The lobe assignments follow the
+cited FreeSurfer DK mapping and measured Destrieux overlap. Yeo 7 and Yeo 17
+retain the RGB values in their imported FreeSurfer Yeo annotations, attributed
+to [Yeo et al. and CBIG](https://github.com/ThomasYeoLab/CBIG/tree/master/stable_projects/brain_parcellation/Yeo2011_fcMRI_clustering).
+
+**Display → Colourblind-safe palette** uses the nine unmodified colours from
+[Paul Tol's muted qualitative palette](https://sronpersonalpages.nl/~pault/).
+Its [original Python definition](https://sronpersonalpages.nl/~pault/data/tol_colors.py)
+specifies the BSD 3-clause licence; the notice is retained in
+`licenses/Paul-Tol.txt` and the standalone HTML. The application assigns these
+colours independently for each scheme using a deterministic saturation-degree
+colouring of the combined left/right parcel-adjacency graph. Bilateral labels
+share a colour. Colours are reused in schemes with more than nine labels;
+adjacency conflicts are minimized, but colours alone cannot uniquely identify
+all parcels or guarantee discrimination for every form of colour-vision
+deficiency. Boundaries, names, picking, and the legend remain available.
+Switching palettes changes the colour lookup only, preserving labels, geometry,
+selection, and hidden structures. Both controls support Undo and Reset.
+
+Non-cortical anatomy is matte warm grey while viewing cortical parcellations.
+Its FreeSurfer `FreeSurferColorLUT.txt` aseg colours return for any positive
+lift, for a directly selected structure, or for the corresponding deep-anatomy
+group being browsed in **Structures**. Browsing means entering the cerebellum,
+brainstem, ventricles, diencephalon, or a hemisphere's deep-structure group;
+the root Brain page does not activate this exception. Switching to the legend
+ends the browsing exception. These structures never enter the cortical legend.
+The previously pale inferior mesh in the left lateral view was identified by
+label-ID ray picking as **Brainstem (aseg 16)**. Its opacity was already 1;
+bright lighting and its blue-grey source material created a translucent
+appearance. The context material is now matte, opaque, and front-sided, while
+explicit opacity and glass controls continue to work.
+
+**Curvature shading** is on by default. It uses the actual fsaverage6 `sulc`
+values attached to the corresponding source vertices in every morph state.
+Positive values darken sulci; negative values lighten gyri. The shared scale
+is the 95th percentile of absolute values across both hemispheres. Values are
+clamped to that scale and modulate relative HSL lightness by at most ±18%,
+after parcel colour and lighting, before selection dimming. Hue and saturation
+are preserved by the lightness operation. This is average convexity from
+FreeSurfer's inflation process, not a newly measured anatomical curvature or
+depth in millimetres; see [Destrieux et al. (2010), section 2.2](https://surfer.nmr.mgh.harvard.edu/ftp/articles/2010/2010_-_Destrieux_et_al._-_NeuroImage.pdf).
+
+Each compact legend row pairs matching left/right source labels. A split swatch
+shows both colours when the original palette differs between hemispheres
+(the Destrieux subcallosal label). The displayed
+percentage is the arithmetic mean of the two hemisphere percentages; its
+tooltip gives each value separately. Areas are measured on the **native
+fsaverage6 white surface in MNI305 millimetres**, before the display affine,
+compression, or morphing. Each triangle contributes one third of its area to
+each labelled corner. Each hemisphere and scheme is normalized separately to
+its assigned cortex, excluding that scheme's medial wall and unassigned source
+labels. Assigned percentages therefore sum to 100% per hemisphere; this is not
+a vertex-count percentage. The final dimmed unassigned row shows a dash because
+it is excluded from that denominator, and combines its underlying source labels
+for each visibility toggle. L/R buttons independently hide the corresponding
+hemisphere's parcel. Names are available in full through tooltips and the
+inspector. Schemes with more than 20 named labels have a filter field.
+
+## Imported data counts
 
 | Data | Actual imported count |
 | --- | ---: |
@@ -191,6 +254,11 @@ GPU correspondence, boundary-filter coverage, and motion tests. The browser
 command also runs `tests/browser-polish.mjs`: 1920×1080, 1440×900, 1280×720,
 short-height reachability, all surface states, every journey step, lift
 collisions, pinned inspector actions, toolbar spacing, and reduced motion.
+It also runs `tests/browser-appearance.mjs` at 1920×1080 and 1280×720 for every
+scheme, both palettes, lift and selection states, hemisphere toggles, source
+colour exceptions, area legends, filtering, and curvature shading in all five
+surface states. Eight additional geometry tests independently integrate white
+triangle areas and verify the medial-wall exclusion and percentages.
 
 Geometry and compression tests need the raw cache and intermediate buffers
 produced by the pipeline. State and browser tests use the shipped processed
@@ -210,7 +278,7 @@ network requests fail the suite. Screenshots are stored in `reports/`.
 See `docs/VALIDATION.md` and the machine-readable reports for actual results,
 including the limitations of the spatial checks.
 The [offline visual review gallery](reports/visual-review.html) links to all
-57 screenshots from the additional layout and motion suite.
+screenshots from the layout, motion, and appearance suites.
 
 To package and independently verify the clean release after testing, run
 `python scripts/package_release.py` and `python scripts/verify_release.py`.
@@ -234,7 +302,8 @@ are not implemented or bundled in this release.
 All requested datasets permit redistribution with their retained notices.
 FreeSurfer assets use the FreeSurfer Software License; Yeo source attribution
 and CBIG's MIT notice are also retained; the MNI template uses its permissive
-McGill notice. Three.js and meshoptimizer use MIT licences. The source code's
+McGill notice. Three.js and meshoptimizer use MIT licences. The accessible
+palette uses Paul Tol's BSD 3-clause notice. The source code's
 MIT licence is in `LICENSE`. Full dataset decisions, references, exact source
 URLs, and counts are in `docs/DATA_SOURCES.md` and `data/sources.json`.
 

@@ -2,12 +2,14 @@ import {MOTION,reducedMotion} from './motion.js';
 import {decodeAtlas} from './data.js';
 import {Store,SCHEMES,SURFACES,LOBES,hierarchy,parcelParent,structureGroups,cortexVisibility,subcorticalVisibility} from './state.js';
 import {AtlasRenderer} from './renderer.js';
+import {legendRows} from './appearance.js';
 
 const $=id=>document.getElementById(id);
 const escape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const eye=visible=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="2.7"/>${visible?'':'<path d="m3 3 18 18"/>'}</svg>`;
 const side=h=>h==='lh'?'Left':h==='rh'?'Right':'Midline';
 let atlas,renderer,groups,store=new Store(),journeyIndex=-1,toastTimer,inspectorDismissed=false,lastSelection='',lastNav='',lastLegend='';
+let legendScheme='';
 const labelMeasure=document.createElement('canvas').getContext('2d');
 function toast(text){$('toast').textContent=text;$('toast').hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').hidden=true,4200);}
 function schemeName(id){return atlas.schemes.find(s=>s.id===id)?.name||id;}
@@ -28,8 +30,8 @@ function select(ref,{focus=false,navigate=false}={}){
 function renderRows(items,target){
   const scroll=target.scrollTop;const html=items.map((item,index)=>{
     const ref=refFor(item),hidden=isHidden(ref),selection=store.state.selection,selected=selection?.type===ref.type&&(ref.type==='group'?selection.key===ref.key:selection.id===ref.id),title=item.name;
-    const count=item.type==='group'?`${item.children.length} ${item.children.some(x=>x.type==='group')?(item.children.length===1?'region':'regions'):(item.children.length===1?'structure':'structures')}`:item.type==='parcel'?`${side(item.hemisphere)} · ${item.vertices.toLocaleString()} vertices`:side(item.hemisphere);
-    return `<div style="--item-delay:${Math.min(index*MOTION.stagger,MOTION.staggerCap)}ms" class="structure-row${hidden?' is-hidden':''}${selected?' selected':''}"><button class="row-main" data-ref="${escape(JSON.stringify(ref))}" aria-label="${item.type==='group'?'Explore':'Inspect'} ${escape(title)}">${item.type==='group'?'<span class="group-swatch">+</span>':`<span class="swatch" style="background:rgb(${item.color.join(',')})"></span>`}<span class="row-name">${escape(title)}<small>${escape(count)}</small></span></button><button class="visibility-button" data-toggle="${escape(JSON.stringify(ref))}" aria-label="${hidden?'Show':'Hide'} ${escape(title)}" aria-pressed="${!hidden}">${eye(!hidden)}</button>${item.type==='group'?'<span class="row-arrow">›</span>':''}</div>`;
+    const count=item.type==='group'?`${item.children.length} ${item.children.some(x=>x.type==='group')?(item.children.length===1?'region':'regions'):(item.children.length===1?'structure':'structures')}`:item.type==='parcel'?`${side(item.hemisphere)} · ${item.assigned?item.areaPercent.toFixed(1)+'% of cortex':'Unassigned'}`:side(item.hemisphere);
+    return `<div style="--item-delay:${Math.min(index*MOTION.stagger,MOTION.staggerCap)}ms" class="structure-row${hidden?' is-hidden':''}${selected?' selected':''}"><button class="row-main" data-ref="${escape(JSON.stringify(ref))}" aria-label="${item.type==='group'?'Explore':'Inspect'} ${escape(title)}">${item.type==='group'?'<span class="group-swatch">+</span>':`<span class="swatch" style="background:rgb(${(item.type==='parcel'&&store.state.colourblindSafe?renderer.safeColours.get(item.id):item.color).join(',')})"></span>`}<span class="row-name">${escape(title)}<small>${escape(count)}</small></span></button><button class="visibility-button" data-toggle="${escape(JSON.stringify(ref))}" aria-label="${hidden?'Show':'Hide'} ${escape(title)}" aria-pressed="${!hidden}">${eye(!hidden)}</button>${item.type==='group'?'<span class="row-arrow">›</span>':''}</div>`;
   }).join('');
   if(target.innerHTML!==html){target.innerHTML=html;target.scrollTop=scroll;}
 }
@@ -49,9 +51,21 @@ function renderExplorer(){
   if(!$('legend-view').hidden)renderLegend();
 }
 function renderLegend(){
-  const signature=JSON.stringify([store.state.scheme,store.state.selection,store.state.hiddenParcels]);if(signature===lastLegend)return;lastLegend=signature;
-  const list=$('legend-list'),scroll=list.scrollTop;list.innerHTML='';
-  for(const hemi of ['lh','rh']){const heading=document.createElement('div');heading.className='legend-hemisphere';heading.textContent=side(hemi)+' hemisphere';list.append(heading);const rows=document.createElement('div');renderRows(atlas.parcels.filter(p=>p.scheme===store.state.scheme&&p.hemisphere===hemi).map(p=>({...p,type:'parcel'})),rows);list.append(rows);}
+  if(legendScheme!==store.state.scheme){legendScheme=store.state.scheme;$('legend-filter').value='';}
+  const s=store.state,query=$('legend-filter').value.trim().toLowerCase();
+  const signature=JSON.stringify([s.scheme,s.selection,s.hiddenParcels,s.colourblindSafe,query]);if(signature===lastLegend)return;lastLegend=signature;
+  const list=$('legend-list'),scroll=list.scrollTop,rows=legendRows(atlas,s.scheme);
+  $('legend-filter-label').hidden=rows.filter(r=>r.assigned).length<=20;
+  const filtered=rows.filter(r=>!r.assigned||!query||r.name.toLowerCase().includes(query)||[...r.lh,...r.rh].some(p=>p.nativeName.toLowerCase().includes(query)));
+  list.innerHTML=filtered.map(row=>{
+    const parcels=[...row.lh,...row.rh],p=parcels[0],selected=parcels.some(p=>s.selection?.type==='parcel'&&s.selection.id===p.id);
+    const percentages=['lh','rh'].map(h=>row[h].reduce((sum,p)=>sum+(p.areaPercent||0),0));
+    const tooltip=row.assigned?`Left: ${percentages[0].toFixed(2)}%; Right: ${percentages[1].toFixed(2)}%. Each percentage uses that hemisphere's assigned white-surface area. The row shows their arithmetic mean.`:'The medial wall and unassigned labels are excluded from cortical area percentages.';
+    const colour=s.colourblindSafe?renderer.safeColours.get(p.id):p.color;
+    const right=row.rh[0],rightColour=s.colourblindSafe?renderer.safeColours.get(right.id):right.color;
+    const swatch=colour.join(',')===rightColour.join(',')?`rgb(${colour.join(',')})`:`linear-gradient(90deg,rgb(${colour.join(',')}) 50%,rgb(${rightColour.join(',')}) 50%)`;
+    return `<div class="structure-row legend-row${row.assigned?'':' unassigned'}${selected?' selected':''}" data-legend-key="${row.key}"><button class="row-main" data-ref="${escape(JSON.stringify({type:'parcel',id:p.id}))}" title="${escape(row.name)}" aria-label="Inspect ${escape(row.name)}"><span class="swatch" style="background:${swatch}" title="Left and right hemisphere colours"></span><span class="row-name">${escape(row.name)}</span></button><span class="area-value" tabindex="0" title="${escape(tooltip)}" aria-label="${escape(tooltip)}">${row.assigned?((percentages[0]+percentages[1])/2).toFixed(1)+'%':'—'}</span>${['lh','rh'].map(h=>{const hidden=row[h].every(p=>s.hiddenParcels.includes(p.id));return `<button class="hemisphere-toggle" data-parcel-ids="${row[h].map(p=>p.id).join(',')}" title="${hidden?'Show':'Hide'} ${side(h).toLowerCase()} ${escape(row.name)}" aria-label="${hidden?'Show':'Hide'} ${side(h).toLowerCase()} ${escape(row.name)}" aria-pressed="${!hidden}">${h==='lh'?'L':'R'}</button>`;}).join('')}</div>`;
+  }).join('');
   list.scrollTop=scroll;requestAnimationFrame(updateScrollShadows);
 }
 function renderInspector(){
@@ -80,14 +94,16 @@ function setTab(legend){
   $('explorer-view').hidden=legend;$('legend-view').hidden=!legend;
   for(const [id,active] of [['explore-tab',!legend],['legend-tab',legend]]){$(id).classList.toggle('active',active);$(id).setAttribute('aria-selected',active);}
   document.querySelector('.panel-tabs').classList.toggle('legend-active',legend);if(legend)renderLegend();requestAnimationFrame(updateScrollShadows);
+  renderer.structuresTab=!legend;renderer.update(store.state);
 }
 function renderControls(){
   const s=store.state;$('scheme').value=s.scheme;$('morph').value=s.morph;$('separation').value=s.separation;$('lift').value=s.lift;
+  $('curvature-shading').checked=s.curvatureShading;$('colourblind-safe').checked=s.colourblindSafe;
   const state=SURFACES[Math.round(s.morph)],deformed=s.morph>1.01||s.separation>.01||s.lift>.01;
   $('space-badge').textContent=deformed?'Display layout · not anatomical coordinates':'MNI152 · anatomical position';
   $('morph-description').textContent=['Follow the natural folds of the cortex.','Explore the cortical white-matter boundary.','Open the folds; keep every parcel in place.','The same vertices, mapped onto a sphere.','A derived flat projection with an antipodal seam.'][Math.round(s.morph)];
   document.querySelectorAll('[data-morph]').forEach(b=>b.classList.toggle('active',+b.dataset.morph===Math.round(s.morph)));
-  document.querySelectorAll('[data-material]').forEach(b=>b.classList.toggle('active',b.dataset.material===s.material));
+  document.querySelectorAll('[data-material]').forEach(b=>{b.classList.toggle('active',b.dataset.material===s.material);b.setAttribute('aria-pressed',b.dataset.material===s.material);});
   $('labels-toggle').classList.toggle('active',s.labels);$('labels-toggle').setAttribute('aria-pressed',s.labels);
   $('auto-toggle').classList.toggle('active',s.auto);$('auto-toggle').setAttribute('aria-pressed',s.auto);
   const hidden=s.hiddenGroups.length+s.hiddenParcels.length+s.hiddenStructures.length;
@@ -108,6 +124,7 @@ function installUI(){
   for(const id of ['structure-list','legend-list'])$(id).addEventListener('scroll',updateScrollShadows,{passive:true});
   new ResizeObserver(()=>{updateScrollShadows();updateFraming();}).observe($('stage'));
   for(const target of ['structure-list','legend-list'])$(target).addEventListener('click',e=>{
+    const hemispheres=e.target.closest('[data-parcel-ids]');if(hemispheres){const ids=hemispheres.dataset.parcelIds.split(',').map(Number),hidden=store.state.hiddenParcels,show=ids.every(id=>hidden.includes(id));store.update({hiddenParcels:show?hidden.filter(id=>!ids.includes(id)):[...new Set([...hidden,...ids])]});return;}
     const toggle=e.target.closest('[data-toggle]');if(toggle){toggleRef(JSON.parse(toggle.dataset.toggle));return;}
     const row=e.target.closest('[data-ref]');if(row){const ref=JSON.parse(row.dataset.ref);select(ref,{navigate:ref.type==='group'});}
   });
@@ -121,7 +138,10 @@ function installUI(){
     if(action==='isolate'){store.update({isolation:store.state.isolation?null:ref});if(store.state.isolation)renderer.focus(ref);}
     if(action==='parent'){const parent=parentOf(ref);if(parent)store.update({nav:parent,selection:{type:'group',key:parent},...(ref.type==='parcel'?{scheme:refData(ref).scheme}:{})});}
   };
-  $('scheme').onchange=e=>store.update({scheme:e.target.value});
+  $('scheme').onchange=e=>{$('legend-filter').value='';store.update({scheme:e.target.value});};
+  $('legend-filter').oninput=()=>{renderLegend();$('legend-list').scrollTop=0;};
+  $('curvature-shading').onchange=e=>store.update({curvatureShading:e.target.checked});
+  $('colourblind-safe').onchange=e=>store.update({colourblindSafe:e.target.checked});
   const sliders=['morph','separation','lift','opacity'];
   sliders.forEach(id=>{
     const input=$(id);input.addEventListener('pointerdown',()=>store.begin());input.addEventListener('change',()=>store.end());input.addEventListener('pointerup',()=>store.end());input.addEventListener('blur',()=>store.end());
