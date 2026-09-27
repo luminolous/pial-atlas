@@ -1,15 +1,15 @@
 {
   "file": "Pial-Atlas.html",
-  "bytes": 2788375,
-  "megabytes": 2.788375,
-  "sha256": "6c54590f06285c49775fc46a361b0891940bb5a0fbda8391c03d7124a137f6b5",
+  "bytes": 5347530,
+  "megabytes": 5.34753,
+  "sha256": "e96bf8962f91ae7b53e2d05640aab4e97c022ee491f69e4cda3daa2df4e257dd",
   "compression": "meshoptimizer 0.24 vertex and index codecs; positions quantized to 0.01 mm; gzip for labels, volume, and inline envelope",
   "counts": {
     "importedSurfaceStates": 8,
     "derivedFlatMaps": 2,
     "corticalMeshes": 2,
-    "verticesPerHemisphere": 10242,
-    "corticalTriangles": 40960,
+    "verticesPerHemisphere": 40962,
+    "corticalTriangles": 163840,
     "parcels": {
       "dk": 68,
       "destrieux": 148,
@@ -17,7 +17,7 @@
       "yeo17": 34
     },
     "unassignedLabels": 10,
-    "asegStructures": 21,
-    "asegTriangles": 50672
+    "asegStructures": 27,
+    "asegTriangles": 62754
   }
 }

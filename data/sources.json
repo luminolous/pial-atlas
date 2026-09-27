@@ -1,123 +1,123 @@
 {
-  "lh.pial": {
-    "url": "https://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/tutorial_versions_centos6/freesurfer/subjects/fsaverage5/surf/lh.pial",
+  "fsaverage6/lh.pial": {
+    "url": "https://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/tutorial_versions_centos6/freesurfer/subjects/fsaverage6/surf/lh.pial",
     "license": "FreeSurfer",
-    "sha256": "d3e772b74f39ed7a979d78dab5b98d1fe5916f1354b52d05c23b85a8080b72bd",
-    "bytes": 368962
+    "sha256": "e31e4b615abcad1bc5c6b69401bbfcbc1cc00a484257ae9e7c3df080cc68654c",
+    "bytes": 1474882
   },
-  "lh.white": {
-    "url": "https://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/tutorial_versions_centos6/freesurfer/subjects/fsaverage5/surf/lh.white",
+  "fsaverage6/lh.white": {
+    "url": "https://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/tutorial_versions_centos6/freesurfer/subjects/fsaverage6/surf/lh.white",
     "license": "FreeSurfer",
-    "sha256": "e33d59c96804df78159483a607eb782345e50e67b75a16436d543d158adf5e8e",
-    "bytes": 368962
+    "sha256": "9e927bc7ed863e0e4d01035616456e06b170847dfe7b4fc1e46628ed030e598b",
+    "bytes": 1474882
   },
-  "lh.inflated": {
-    "url": "https://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/tutorial_versions_centos6/freesurfer/subjects/fsaverage5/surf/lh.inflated",
+  "fsaverage6/lh.inflated": {
+    "url": "https://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/tutorial_versions_centos6/freesurfer/subjects/fsaverage6/surf/lh.inflated",
     "license": "FreeSurfer",
-    "sha256": "e09e3029d5d8142f90a9e6fa56a2872b6c0c2a92c646254ae856d29a9e75ec61",
-    "bytes": 368946
+    "sha256": "b38f14b0b073df96a9c9daf3de41d4d8f5b32d7c7148dad36e21c44e552dcab8",
+    "bytes": 1475620
   },
-  "lh.sphere": {
-    "url": "https://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/tutorial_versions_centos6/freesurfer/subjects/fsaverage5/surf/lh.sphere",
+  "fsaverage6/lh.sphere": {
+    "url": "https://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/tutorial_versions_centos6/freesurfer/subjects/fsaverage6/surf/lh.sphere",
     "license": "FreeSurfer",
-    "sha256": "5772df32ee7a0eaaf1f3296a3c4f1c51c075e7fe58e53cbc92bdb5ddec62fbf4",
-    "bytes": 368946
+    "sha256": "9d1b6805f9e4831f903f358d7677d7c3378b6fca9b70300e3e72aeff503b001f",
+    "bytes": 1474866
   },
-  "lh.sphere.reg": {
-    "url": "https://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/tutorial_versions_centos6/freesurfer/subjects/fsaverage5/surf/lh.sphere.reg",
+  "fsaverage6/lh.sphere.reg": {
+    "url": "https://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/tutorial_versions_centos6/freesurfer/subjects/fsaverage6/surf/lh.sphere.reg",
     "license": "FreeSurfer",
-    "sha256": "5772df32ee7a0eaaf1f3296a3c4f1c51c075e7fe58e53cbc92bdb5ddec62fbf4",
-    "bytes": 368946
+    "sha256": "9d1b6805f9e4831f903f358d7677d7c3378b6fca9b70300e3e72aeff503b001f",
+    "bytes": 1474866
   },
-  "lh.sulc": {
-    "url": "https://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/tutorial_versions_centos6/freesurfer/subjects/fsaverage5/surf/lh.sulc",
+  "fsaverage6/lh.sulc": {
+    "url": "https://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/tutorial_versions_centos6/freesurfer/subjects/fsaverage6/surf/lh.sulc",
     "license": "FreeSurfer",
-    "sha256": "3b76bf1c943ebf50bc1dc9efcff45c8c8ed939524275e93f4e12489b937d7d74",
-    "bytes": 40983
+    "sha256": "8e684b1405e86b6d3fa05e4f26628cb6c2b1080b95982faf24caa7345cfdf7a5",
+    "bytes": 163863
   },
-  "lh.aparc.annot": {
-    "url": "https://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/tutorial_versions_centos6/freesurfer/subjects/fsaverage5/label/lh.aparc.annot",
+  "fsaverage6/lh.aparc.annot": {
+    "url": "https://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/tutorial_versions_centos6/freesurfer/subjects/fsaverage6/label/lh.aparc.annot",
     "license": "FreeSurfer; CBIG MIT for Yeo",
-    "sha256": "74d1c2fd5e6b7ca193f06fee45a86f5638f347e38cea5ba27fce9fd69c0056be",
-    "bytes": 83444
+    "sha256": "2c90df9c87304e1cc60e955de54598c859718824b0c544e79b1980ccfd2c1175",
+    "bytes": 329204
   },
-  "lh.aparc.a2009s.annot": {
-    "url": "https://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/tutorial_versions_centos6/freesurfer/subjects/fsaverage5/label/lh.aparc.a2009s.annot",
+  "fsaverage6/lh.aparc.a2009s.annot": {
+    "url": "https://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/tutorial_versions_centos6/freesurfer/subjects/fsaverage6/label/lh.aparc.a2009s.annot",
     "license": "FreeSurfer; CBIG MIT for Yeo",
-    "sha256": "c2401d6137949f33788283a4926cb61cb3b0bfe5bda1b368c22aa921ea06d38d",
-    "bytes": 85260
+    "sha256": "33edfcdd9ccf3d12472ab461856a4783111185f8c8c55408dabfb2b2b8b4a28d",
+    "bytes": 331020
   },
-  "lh.Yeo2011_7Networks_N1000.annot": {
-    "url": "https://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/tutorial_versions_centos6/freesurfer/subjects/fsaverage5/label/lh.Yeo2011_7Networks_N1000.annot",
+  "fsaverage6/lh.Yeo2011_7Networks_N1000.annot": {
+    "url": "https://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/tutorial_versions_centos6/freesurfer/subjects/fsaverage6/label/lh.Yeo2011_7Networks_N1000.annot",
     "license": "FreeSurfer; CBIG MIT for Yeo",
-    "sha256": "4d2ea20fa33afa722d35884d27b3577486d8d7e15520d7d23efdd84956139190",
-    "bytes": 82278
+    "sha256": "911e2a4a42fabfad40d5d62678287d0105fff706c625820d0c803973308a4952",
+    "bytes": 328038
   },
-  "lh.Yeo2011_17Networks_N1000.annot": {
-    "url": "https://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/tutorial_versions_centos6/freesurfer/subjects/fsaverage5/label/lh.Yeo2011_17Networks_N1000.annot",
+  "fsaverage6/lh.Yeo2011_17Networks_N1000.annot": {
+    "url": "https://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/tutorial_versions_centos6/freesurfer/subjects/fsaverage6/label/lh.Yeo2011_17Networks_N1000.annot",
     "license": "FreeSurfer; CBIG MIT for Yeo",
-    "sha256": "db616fec4dd1123595e60c0c239e476c20ad38a9c0191f9706f0dfaf9012b6e4",
-    "bytes": 82663
+    "sha256": "97fdeb32eaa143be72fc06f3e9560505c1a361ad9d3d7894ce30e0795fc75a9b",
+    "bytes": 328423
   },
-  "rh.pial": {
-    "url": "https://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/tutorial_versions_centos6/freesurfer/subjects/fsaverage5/surf/rh.pial",
+  "fsaverage6/rh.pial": {
+    "url": "https://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/tutorial_versions_centos6/freesurfer/subjects/fsaverage6/surf/rh.pial",
     "license": "FreeSurfer",
-    "sha256": "64440462e8d1cec650d100c0fb16cb4704937e19e0bc42f58997a6a09e5e536b",
-    "bytes": 368962
+    "sha256": "3d64a3fa1be6f93353d535688fbc89990e2a29d2e7e6f5db81467c09e186b36e",
+    "bytes": 1474882
   },
-  "rh.white": {
-    "url": "https://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/tutorial_versions_centos6/freesurfer/subjects/fsaverage5/surf/rh.white",
+  "fsaverage6/rh.white": {
+    "url": "https://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/tutorial_versions_centos6/freesurfer/subjects/fsaverage6/surf/rh.white",
     "license": "FreeSurfer",
-    "sha256": "44796e919742358d106cda399509d1f9836aab6459b3f1bcd66712ec43788eba",
-    "bytes": 368962
+    "sha256": "8671586105b1cac6c1ca1b8db265e84a64d2a7dfd518a131a98885f6def57373",
+    "bytes": 1474882
   },
-  "rh.inflated": {
-    "url": "https://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/tutorial_versions_centos6/freesurfer/subjects/fsaverage5/surf/rh.inflated",
+  "fsaverage6/rh.inflated": {
+    "url": "https://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/tutorial_versions_centos6/freesurfer/subjects/fsaverage6/surf/rh.inflated",
     "license": "FreeSurfer",
-    "sha256": "7b08a24c6a2f2e685f3706d7111ff91bcee5e28cc293e6741814d1dbe939b528",
-    "bytes": 368946
+    "sha256": "733fb8110e055abb9288fdc2f98346b6ec8fbfa45ccef3a589f9b0891ae0f744",
+    "bytes": 1475620
   },
-  "rh.sphere": {
-    "url": "https://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/tutorial_versions_centos6/freesurfer/subjects/fsaverage5/surf/rh.sphere",
+  "fsaverage6/rh.sphere": {
+    "url": "https://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/tutorial_versions_centos6/freesurfer/subjects/fsaverage6/surf/rh.sphere",
     "license": "FreeSurfer",
-    "sha256": "5772df32ee7a0eaaf1f3296a3c4f1c51c075e7fe58e53cbc92bdb5ddec62fbf4",
-    "bytes": 368946
+    "sha256": "9d1b6805f9e4831f903f358d7677d7c3378b6fca9b70300e3e72aeff503b001f",
+    "bytes": 1474866
   },
-  "rh.sphere.reg": {
-    "url": "https://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/tutorial_versions_centos6/freesurfer/subjects/fsaverage5/surf/rh.sphere.reg",
+  "fsaverage6/rh.sphere.reg": {
+    "url": "https://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/tutorial_versions_centos6/freesurfer/subjects/fsaverage6/surf/rh.sphere.reg",
     "license": "FreeSurfer",
-    "sha256": "5772df32ee7a0eaaf1f3296a3c4f1c51c075e7fe58e53cbc92bdb5ddec62fbf4",
-    "bytes": 368946
+    "sha256": "9d1b6805f9e4831f903f358d7677d7c3378b6fca9b70300e3e72aeff503b001f",
+    "bytes": 1474866
   },
-  "rh.sulc": {
-    "url": "https://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/tutorial_versions_centos6/freesurfer/subjects/fsaverage5/surf/rh.sulc",
+  "fsaverage6/rh.sulc": {
+    "url": "https://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/tutorial_versions_centos6/freesurfer/subjects/fsaverage6/surf/rh.sulc",
     "license": "FreeSurfer",
-    "sha256": "48f298396283346c04a8ceb01abb40265ac12317f559f70470fe56f629f595d5",
-    "bytes": 40983
+    "sha256": "5965fc43400b0079bd1495cf64da5ce1a7235fbb91897df80edb71e9ca416e7c",
+    "bytes": 163863
   },
-  "rh.aparc.annot": {
-    "url": "https://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/tutorial_versions_centos6/freesurfer/subjects/fsaverage5/label/rh.aparc.annot",
+  "fsaverage6/rh.aparc.annot": {
+    "url": "https://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/tutorial_versions_centos6/freesurfer/subjects/fsaverage6/label/rh.aparc.annot",
     "license": "FreeSurfer; CBIG MIT for Yeo",
-    "sha256": "ca86b3b0bd5b74e367519dd94157154ae7c61ad128680fcc7b52e1a799e34e9f",
-    "bytes": 83444
+    "sha256": "7ecc52d5b2ffd5a2d9e6fa29ab2a94c4b29bcca5334261f7c8fa2c99733990e7",
+    "bytes": 329204
   },
-  "rh.aparc.a2009s.annot": {
-    "url": "https://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/tutorial_versions_centos6/freesurfer/subjects/fsaverage5/label/rh.aparc.a2009s.annot",
+  "fsaverage6/rh.aparc.a2009s.annot": {
+    "url": "https://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/tutorial_versions_centos6/freesurfer/subjects/fsaverage6/label/rh.aparc.a2009s.annot",
     "license": "FreeSurfer; CBIG MIT for Yeo",
-    "sha256": "99c028f9f9d8dce617e9f29a5ebdc2f1b187d83650b68128fae53c3669588da7",
-    "bytes": 85260
+    "sha256": "b65564e4f1bea1cd47d6b2e2bdca8635bed49265998dab7f68f8933b57c56494",
+    "bytes": 331020
   },
-  "rh.Yeo2011_7Networks_N1000.annot": {
-    "url": "https://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/tutorial_versions_centos6/freesurfer/subjects/fsaverage5/label/rh.Yeo2011_7Networks_N1000.annot",
+  "fsaverage6/rh.Yeo2011_7Networks_N1000.annot": {
+    "url": "https://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/tutorial_versions_centos6/freesurfer/subjects/fsaverage6/label/rh.Yeo2011_7Networks_N1000.annot",
     "license": "FreeSurfer; CBIG MIT for Yeo",
-    "sha256": "53fa768b6c33a3bc8fb5b147d18049684514fcd07e2cbacceeca17cfc21d9e9b",
-    "bytes": 82278
+    "sha256": "8be84c5318851161bb906f92e03dac1ec6c17148a56dfbdd11bca27d9840034a",
+    "bytes": 328038
   },
-  "rh.Yeo2011_17Networks_N1000.annot": {
-    "url": "https://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/tutorial_versions_centos6/freesurfer/subjects/fsaverage5/label/rh.Yeo2011_17Networks_N1000.annot",
+  "fsaverage6/rh.Yeo2011_17Networks_N1000.annot": {
+    "url": "https://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/tutorial_versions_centos6/freesurfer/subjects/fsaverage6/label/rh.Yeo2011_17Networks_N1000.annot",
     "license": "FreeSurfer; CBIG MIT for Yeo",
-    "sha256": "f54456bd85a4e1ed8daecb2b201ebfb2e4c2e1210f3cce3faf0898e87528537d",
-    "bytes": 82663
+    "sha256": "742e84469e71059a5813848ff9ce6eb45880cc7dd757169aa04eb3724d87f7e6",
+    "bytes": 328423
   },
   "aseg.mgz": {
     "url": "https://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/tutorial_versions_centos6/freesurfer/subjects/fsaverage/mri/aseg.mgz",

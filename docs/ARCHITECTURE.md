@@ -47,29 +47,42 @@ not a nonlinear surface-to-volume correspondence. Fine sulci and tissue borders
 do not match exactly. The QA montage shows pial, white, and aseg contours in the
 three orthogonal planes, before and after affine refinement. The coarse aseg
 versus target brain-mask Dice is 0.880964; aseg is not itself a full brain mask.
-Pial vertices within the target mask dilated by two 2 mm voxels are 99.10% left
-and 99.82% right. White vertices inside the undilated mask are 98.59% and 99.73%.
+Pial vertices within the target mask dilated by two 2 mm voxels are 99.12% left
+and 99.83% right. White vertices inside the undilated mask are 98.51% and 99.72%.
 These are geometric checks, not clinical accuracy measurements.
 
 ## Surface correspondence and compression
 
-FreeSurfer's official fsaverage5 files already provide the reduced icosahedral
+FreeSurfer's official fsaverage6 files already provide the reduced icosahedral
 resolution required for the web. The pipeline checks all four source surfaces
-for exactly 10,242 vertices and identical 20,480-triangle index arrays in each
+for exactly 40,962 vertices and identical 81,920-triangle index arrays in each
 hemisphere. It does not independently decimate morph targets.
 
-Each hemisphere has one indexed `BufferGeometry`, four per-vertex integer label
-components (stored as a `vec4` attribute on the GPU), sulcal depth, persistent
-visibility, and position/normal morph targets for white, inflated, sphere, and
-flat representations. Geometry is never split into separate parcel meshes.
-Changing parcellation updates one shader uniform. A 512-entry colour texture
-maps the active label ID to a display colour.
+Each hemisphere retains one shared source topology and four integer label IDs
+per vertex. The GPU-facing geometry expands triangle corners once to carry
+barycentric coordinates, source label attributes, sulcal depth, visibility, and
+the five corresponding positions and normals. The two cortical meshes are never
+split into separate parcel meshes, and geometry remains fixed across schemes.
+The 81,924 unique source vertices become 491,520 GPU triangle corners; these
+derived corners are generated locally and are not duplicated in the download.
 
-Labels are categorical, not interpolated scalar values. GLSL `flat` varyings
-use each triangle's last (provoking) vertex; ray picking reads the same indexed
-vertex's label ID. Thus no interpolated value can invent a parcel ID. Boundaries
-are resolved at the fsaverage5 triangle scale; this is a web visualization, not
-a quantitative high-resolution parcel boundary extractor.
+To remove staircase edges, `src/cortex.js` filters categorical indicator fields
+with three adjacency passes (30% own value, 70% neighbour average). This is a
+display filter, not a new anatomical parcellation: original integer annotations,
+counts, lobe membership, and source coordinates remain intact. A texture stores
+the four strongest candidate IDs and corner weights per triangle and scheme.
+The fragment shader interpolates membership weights, selects an existing ID,
+and draws a thin derivative-antialiased boundary between the two leading labels.
+All named source parcels are verified to survive this display filter. Picking
+evaluates the identical weights and returns the selected source ID, never RGB.
+The source-label vertex footprint and the filtered categorical footprint are
+both masked when a parcel is hidden, in all four schemes.
+
+A 512-entry colour texture maps IDs to colours. A scheme switch cross-fades the
+previous and current lookup for 300 ms. Selection preserves its source colour
+and adds a narrow light boundary; other parcels have 35% saturation and 35%
+brightness after tone mapping. Hover uses a lighter 70% treatment. The original
+source geometry and all categorical fields are shared across every morph state.
 
 Meshoptimizer 0.24 compresses position buffers and index sequences. The index
 sequence codec preserves exact order. Position coordinates are quantized to
@@ -87,8 +100,8 @@ centered on each lateral pole. They retain all vertices and the shared topology.
 The closed surface has an antipodal seam/cap and distorted triangles there.
 The cap is defined by lateral-pole dot product below -0.98; projected triangles
 with an edge above 25 mm are also flagged.
-Triangles incident to flagged seam-provoking vertices fade out near the final
-flat state, without replacing the shared index or label buffers. Picking applies
+Flagged seam triangles fade out near the final flat state without replacing
+the shared source topology or label buffers. Picking applies
 the same seam mask. The flat state is neither an imported FreeSurfer patch nor a
 metrically faithful sheet. Its camera automatically faces the sheets and fits
 both hemispheres.
@@ -101,7 +114,7 @@ surface and all offsets to zero without altering visibility rules.
 
 ## aseg extraction
 
-The pipeline selects 21 explicitly listed tissue labels from fsaverage aseg,
+The pipeline selects 27 explicitly listed tissue and ventricular labels from fsaverage aseg,
 uses marching cubes at level 0.5 with a two-voxel step, transforms to target RAS,
 and applies ten Taubin smoothing pairs (`lambda=0.5`, `mu=-0.53`). The original
 vertex centroid is restored after smoothing, so no mesh is translated away from
@@ -131,6 +144,39 @@ one history entry; duplicate input values do not consume extra entries. Reset
 is undoable. Camera orbit/pan/zoom is separate from anatomical state and is not
 part of the undo history.
 
+## Layout, motion, and lifted structures
+
+The left navigation is a viewport-height flex column. The fixed header, tabs,
+breadcrumb, and footer surround a `flex: 1; min-height: 0; overflow-y: scroll`
+list. Scroll shadows reflect whether more rows exist above or below. The
+inspector has its own scrollable body and fixed action footer, outside navigation.
+An off-axis orthographic projection reserves screen space for the inspector or
+journey. The journey temporarily uses its narrative card in place of the
+inspector; closing it makes the selected structure's inspector available again.
+Focus calculates the selected geometry bounds and, for a parcel, faces its
+outward direction so a ventral or medial selection can actually be seen.
+
+`src/motion.js` is the only motion-token source: micro 120 ms, UI 220 ms, layout
+450 ms, camera 700 ms, and the specifically requested scheme cross-fade 300 ms.
+The build exports these tokens and the two easing curves into CSS. A small
+internal tween map handles camera/layout/opacity transitions; no animation
+dependency or runtime network request is added. CSS uses the same standard
+curve, with the overshooting curve restricted to toggle knobs. Reduced motion
+finishes tweens immediately and disables automatic rotation.
+
+The lift layout measures actual transformed mesh bounds. Bilateral structures
+are paired into left/right columns within seven display groups: thalamus, basal
+ganglia, limbic structures, ventricles, brainstem, cerebellum, and undivided
+ventral diencephalon. The last group preserves the source label rather than
+misclassifying it as thalamus. Third and fourth ventricles occupy the final
+ventricular row. These display groups do not replace the anatomical hierarchy.
+Groups are packed into three columns with aligned headings, 16 mm minimum
+within-group gaps, and 36 mm between group cells. No structure is rescaled.
+At full lift, both 3D AABBs and projected rectangles are tested for overlap,
+and the seven visible group labels are independently checked for collisions.
+The lift is a non-anatomical layout; reducing it to zero restores every original
+source position. The framing includes the cortex as anatomical context.
+
 ## Additional layers
 
 `LayerRegistry` registers scene objects with an ID, coordinate-space declaration,
@@ -147,7 +193,11 @@ Those features and their data are not implemented in this release.
 - `pipeline/anatomy.py`: cited anatomical mapping and source-label names.
 - `src/state.js`: visibility, undo, hierarchy, isolation, opacity.
 - `src/data.js`: offline decompression and typed array reconstruction.
-- `src/renderer.js`: layers, Three.js rendering, shaders, morphs, picking, slices.
+- `src/renderer.js`: layers, cameras, Three.js rendering, morphs, picking, slices.
+- `src/cortex.js`: categorical boundary filtering, GPU attributes, and shaders.
+- `src/lift.js`: measured display packing without moving source coordinates.
+- `src/motion.js`: shared motion tokens and the internal tween utility.
+- `src/brand.js`: original monoline brain glyph shared by UI, favicon, and PNG.
 - `src/main.js`: accessible controls, search, inspector, labels, journey.
 - `scripts/build.mjs`: mesh compression and standalone HTML packaging.
 - `tests/`: geometry, compression, state, and real-browser tests.

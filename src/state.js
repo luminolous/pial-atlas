@@ -22,6 +22,7 @@ export class Store {
 }
 export function cortexGroups(hemi,lobe){return ['brain','forebrain','cortex',hemi,hemi+':cortex',hemi+':networks',hemi+':'+lobe];}
 export function structureGroups(s){
+  if(s.group==='ventricles')return ['brain','ventricles','subcortical'];
   if(s.group==='brainstem')return ['brain','brainstem','subcortical'];
   if(s.group==='cerebellum')return ['brain','cerebellum','cerebellum:'+s.hemisphere];
   if(s.group==='diencephalon')return ['brain','forebrain','diencephalon','subcortical'];
@@ -61,6 +62,7 @@ export function hierarchy(atlas,scheme){
   add('forebrain','Forebrain','brain');
   add('cerebellum','Cerebellum','brain');
   add('brainstem','Brainstem','brain','The aseg brainstem is one undivided structure.');
+  add('ventricles','Ventricular system','brain','Ventricular cavities are extracted from their original aseg labels.');
   add('diencephalon','Diencephalon','forebrain');
   for(const [h,side] of [['lh','Left'],['rh','Right']]){
     add(h,side+' cerebral hemisphere','forebrain');

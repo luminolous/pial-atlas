@@ -9,9 +9,10 @@ anatomical accuracy in individual people.
 | Suite | Result | Evidence |
 | --- | --- | --- |
 | Neuroimaging geometry and coordinate tests | 12 passed | `reports/geometry-tests.xml` |
-| State, hierarchy, persistent visibility, opacity, and undo | 7 passed | `reports/state-tests.txt` |
+| State, hierarchy, visibility, lift, categorical fields, and motion | 12 passed | `reports/state-tests.txt` |
 | Real-browser interaction and responsive layout checks | 15 passed | `reports/browser-tests.json` |
-| Compression round trip | 61 typed buffers verified | `reports/compression.json` |
+| New layout, rendering, motion, and contrast checks | 27 passed | `reports/polish-tests.json` |
+| Compression round trip | 73 typed buffers verified | `reports/compression.json` |
 | Maximum coordinate component quantization error | 0.005 mm | `reports/compression.json` |
 | Runtime HTTP requests with the browser offline | 0 | `reports/browser-tests.json` |
 | JavaScript / WebGL console errors | 0 | `reports/browser-tests.json` |
@@ -55,9 +56,9 @@ Measured coarse checks:
 - aseg versus target brain-mask Dice: **0.880964**. These are different types of
   mask, so this is only a coarse overlap measure.
 - Left / right pial vertices in the target mask dilated by two 2 mm voxels:
-  **99.10% / 99.82%**.
+  **99.12% / 99.83%**.
 - Left / right white vertices in the undilated target mask:
-  **98.59% / 99.73%**.
+  **98.51% / 99.72%**.
 - Smoothed aseg mesh centroid shifts: less than **1e-10 mm** before display
   quantization; float/quantized positions have their separately tested tolerance.
 
@@ -69,27 +70,52 @@ The screenshots were inspected after the browser tests, including:
 - `browser-inflated.png`, `browser-sphere.png`, `browser-flat.png`: preserved
   network colouring across surface targets. The flat projection's antipodal
   cap is masked to avoid triangles covering unrelated parts of the sheet.
-- `browser-deep-journey.png`: deep structures lifted above the glass cortex.
+- `browser-deep-journey.png`: deep structures in the measured group layout,
+  with the source-position cortex retained as context.
 - `browser-slices.png`: all three active, textured clipping planes.
 - `browser-1440.png`, `browser-1280.png`, `browser-900.png`, `browser-390.png`:
   desktop, smaller desktop, tablet, and narrow/mobile layouts.
 - `exported-brain.png`: the actual PNG produced by the export control.
 
+The revised application was also exercised at **1920×1080, 1440×900, and
+1280×720**. The `polish-<width>-*.png` screenshots cover the initial view,
+long-list bottom, floating inspector, five surface states, display controls,
+slices, every guided journey step, and the lift layout at each size. Additional
+images cover 600px and 480px heights and reduced motion. The screenshot list is
+recorded in `reports/polish-tests.json`.
+
 Panel bounding boxes were checked for intersection and horizontal overflow.
 The morph panel stays below the visualization. On mobile, the anatomy panel
 moves below it and keeps its own scrollable list. Popovers and the guided-journey
-card intentionally overlay the viewport and have explicit close controls.
+card have explicit close controls. The camera reserves their screen space.
+The journey uses its narrative card instead of the inspector while running;
+its subject remains outside the card rectangle. All seven lifted group labels
+and all 27 projected structure boxes are checked for collisions. A separate
+unit test checks a minimum 16 mm gap between the measured 3D AABBs.
+
+Tests also verify list reachability at the bottom of the 150-label Destrieux
+legend, both scroll shadows, a visible footer, pinned inspector actions,
+keyboard tooltips, camera/material active states, secondary-text WCAG AA
+contrast, colour preservation, and reduced-motion completion. The source
+label filter is independently checked to retain every named parcel. Alerts
+occupy the viewer footer instead of covering the morph controls.
 
 Issues found during validation were fixed: standalone script substitution,
 aseg triangle winding, duplicate undo entries, cross-scheme inspector ancestry,
 partial group-opacity depth writing, network-view labels, and antipodal flat-map
-cap triangles. The final browser run reported no console errors.
+cap triangles. This revision also fixed compressed navigation, inspector
+placement, source-resolution boundaries, cropped lift context, conservative
+label collision estimates, continuous lift-camera updates, excessive popover
+height, first-step journey framing, and footer alerts covering controls.
+The final browser run reported no console errors.
 
 ## Limits
 
 Only Chrome's engine was tested. Pinch gestures were synthesized in a browser
-touch session; a physical touchscreen was not used. fsaverage5 triangulation
-sets the spatial resolution of both rendering and picking. Flat maps are
+touch session; a physical touchscreen was not used. fsaverage6 triangulation
+sets the source spatial resolution. A documented categorical display filter
+smooths the boundaries and drives the corresponding picking calculation; the
+original labels remain unchanged. This display is not a boundary measurement tool. Flat maps are
 derived projections with a masked cap. Population-template registration is
 approximate, and no clinical claims are made. Future tracts, EEG electrodes,
 and connectomes were intentionally not implemented.

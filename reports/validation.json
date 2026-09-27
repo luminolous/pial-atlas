@@ -1,14 +1,28 @@
 {
   "geometryTestsPassed": 12,
-  "stateTestsPassed": 7,
+  "stateTestsPassed": 12,
   "browserChecksPassed": 15,
-  "compressionBuffersVerified": 61,
+  "polishChecksPassed": 27,
+  "polishScreenshots": 57,
+  "compressionBuffersVerified": 73,
   "maximumPositionComponentErrorMm": 0.005000000000002558,
   "browser": "153.0.8010.50",
   "offlineFileURLVerified": true,
   "consoleErrors": 0,
   "runtimeNetworkRequests": 0,
   "viewportsVisuallyReviewed": [
+    [
+      1920,
+      1080
+    ],
+    [
+      1440,
+      900
+    ],
+    [
+      1280,
+      720
+    ],
     [
       1440,
       1000
@@ -26,14 +40,18 @@
       844
     ]
   ],
+  "additionalShortHeightsTested": [
+    600,
+    480
+  ],
   "spatialMontageReviewed": [
     "sagittal -24 mm",
     "coronal -20 mm",
     "axial +20 mm"
   ],
   "coarseAsegMaskDice": 0.8809637481980709,
-  "standaloneHTMLBytes": 2788375,
-  "standaloneHTMLSha256": "6c54590f06285c49775fc46a361b0891940bb5a0fbda8391c03d7124a137f6b5",
+  "standaloneHTMLBytes": 5347530,
+  "standaloneHTMLSha256": "e96bf8962f91ae7b53e2d05640aab4e97c022ee491f69e4cda3daa2df4e257dd",
   "limitations": [
     "Affine population-template alignment, not exact sulcal correspondence or clinical validation.",
     "The flat representation is a derived projection with a masked antipodal cap.",

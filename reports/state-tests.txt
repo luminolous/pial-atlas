@@ -1,56 +1,82 @@
-
-> pial-atlas@1.0.0 test:state
-> node --test tests/state.test.mjs
-
 TAP version 13
-# Subtest: A hidden parcel remains hidden after scheme, morph, layout, and material changes
-ok 1 - A hidden parcel remains hidden after scheme, morph, layout, and material changes
+# Subtest: Lift layout covers every source structure and has no intersecting AABBs
+ok 1 - Lift layout covers every source structure and has no intersecting AABBs
   ---
-  duration_ms: 1.816
+  duration_ms: 14.4038
+  type: 'test'
+  ...
+# Subtest: Barycentric categorical picking combines repeated labels without inventing IDs
+ok 2 - Barycentric categorical picking combines repeated labels without inventing IDs
+  ---
+  duration_ms: 0.1873
+  type: 'test'
+  ...
+# Subtest: GPU triangle corners preserve every source morph vertex and all label schemes
+ok 3 - GPU triangle corners preserve every source morph vertex and all label schemes
+  ---
+  duration_ms: 277.2475
+  type: 'test'
+  ...
+# Subtest: Motion tokens, easing endpoints, and reduced-motion completion are deterministic
+ok 4 - Motion tokens, easing endpoints, and reduced-motion completion are deterministic
+  ---
+  duration_ms: 1.4663
+  type: 'test'
+  ...
+# Subtest: Filtered boundary fields retain every named parcel and picking returns only source IDs
+ok 5 - Filtered boundary fields retain every named parcel and picking returns only source IDs
+  ---
+  duration_ms: 2176.4348
+  type: 'test'
+  ...
+# Subtest: A hidden parcel remains hidden after scheme, morph, layout, and material changes
+ok 6 - A hidden parcel remains hidden after scheme, morph, layout, and material changes
+  ---
+  duration_ms: 2.5381
   type: 'test'
   ...
 # Subtest: Hemisphere and lobe masks remain independent of active scheme
-ok 2 - Hemisphere and lobe masks remain independent of active scheme
+ok 7 - Hemisphere and lobe masks remain independent of active scheme
   ---
-  duration_ms: 0.1289
+  duration_ms: 0.1334
   type: 'test'
   ...
 # Subtest: Undo restores grouped slider changes, visibility, and reset state
-ok 3 - Undo restores grouped slider changes, visibility, and reset state
+ok 8 - Undo restores grouped slider changes, visibility, and reset state
   ---
-  duration_ms: 0.8186
+  duration_ms: 1.6474
   type: 'test'
   ...
 # Subtest: Isolation cannot resurrect explicitly hidden anatomy
-ok 4 - Isolation cannot resurrect explicitly hidden anatomy
+ok 9 - Isolation cannot resurrect explicitly hidden anatomy
   ---
-  duration_ms: 0.1568
+  duration_ms: 0.1746
   type: 'test'
   ...
 # Subtest: All imported labels and structures have reachable hierarchy membership
-ok 5 - All imported labels and structures have reachable hierarchy membership
+ok 10 - All imported labels and structures have reachable hierarchy membership
   ---
-  duration_ms: 1.7288
+  duration_ms: 0.9848
   type: 'test'
   ...
 # Subtest: Group opacity composes with hidden masks and restore all
-ok 6 - Group opacity composes with hidden masks and restore all
+ok 11 - Group opacity composes with hidden masks and restore all
   ---
-  duration_ms: 0.2599
+  duration_ms: 0.2542
   type: 'test'
   ...
 # Subtest: Repeated identical input events do not consume an undo step
-ok 7 - Repeated identical input events do not consume an undo step
+ok 12 - Repeated identical input events do not consume an undo step
   ---
-  duration_ms: 0.1621
+  duration_ms: 0.1588
   type: 'test'
   ...
-1..7
-# tests 7
+1..12
+# tests 12
 # suites 0
-# pass 7
+# pass 12
 # fail 0
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 103.9427
+# duration_ms 2902.453

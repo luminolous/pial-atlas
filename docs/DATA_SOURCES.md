@@ -8,10 +8,10 @@ Full notices are included in `licenses/` and embedded in the standalone HTML und
 
 | Included dataset | Origin and terms | Decision and processing |
 | --- | --- | --- |
-| FreeSurfer fsaverage5 pial, white, inflated, sphere, and sulcal depth | [Official FreeSurfer tutorial distribution](https://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/tutorial_versions_centos6/freesurfer/subjects/fsaverage5/); [FreeSurfer Software License v1.0, February 2011](https://surfer.nmr.mgh.harvard.edu/fswiki/FreeSurferSoftwareLicense), Parts B and C | Redistribution and modification are permitted with the required preface, terms, and attribution. Both hemispheres are included. These are modified, quantized derivatives, not original FreeSurfer files. |
+| FreeSurfer fsaverage6 pial, white, inflated, sphere, and sulcal depth | [Official FreeSurfer tutorial distribution](https://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/tutorial_versions_centos6/freesurfer/subjects/fsaverage6/); [FreeSurfer Software License v1.0, February 2011](https://surfer.nmr.mgh.harvard.edu/fswiki/FreeSurferSoftwareLicense), Parts B and C | Redistribution and modification are permitted with the required preface, terms, and attribution. Both hemispheres are included. These are modified, quantized derivatives, not original FreeSurfer files. |
 | Desikan–Killiany `aparc` and Destrieux `aparc.a2009s` | The same FreeSurfer distribution and licence. [Cortical parcellation documentation](https://surfer.nmr.mgh.harvard.edu/fswiki/CorticalParcellation) | Included as four integer label attributes per vertex across the four schemes; medial-wall and unassigned labels are retained explicitly. |
-| Yeo 2011 7- and 17-network fsaverage5 annotations | [FreeSurfer label files](https://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/tutorial_versions_centos6/freesurfer/subjects/fsaverage5/label/); [CBIG project](https://github.com/ThomasYeoLab/CBIG/tree/master/stable_projects/brain_parcellation/Yeo2011_fcMRI_clustering); [CBIG MIT licence](https://github.com/ThomasYeoLab/CBIG/blob/master/LICENSE.md) | Included. FreeSurfer redistribution terms are retained for its distributed files, and the CBIG MIT notice is also included. Network names come from CBIG's ordered-name CSVs. The 7 and 17 categories are represented independently in each hemisphere, not split into connected components. |
-| fsaverage `aseg.mgz` and T1 | [Official fsaverage MRI directory](https://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/tutorial_versions_centos6/freesurfer/subjects/fsaverage/mri/); FreeSurfer licence above | 21 tissue structures are extracted. The T1 is used only to estimate the affine alignment. Neither raw file is shipped. |
+| Yeo 2011 7- and 17-network fsaverage6 annotations | [FreeSurfer label files](https://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/tutorial_versions_centos6/freesurfer/subjects/fsaverage6/label/); [CBIG project](https://github.com/ThomasYeoLab/CBIG/tree/master/stable_projects/brain_parcellation/Yeo2011_fcMRI_clustering); [CBIG MIT licence](https://github.com/ThomasYeoLab/CBIG/blob/master/LICENSE.md) | Included. FreeSurfer redistribution terms are retained for its distributed files, and the CBIG MIT notice is also included. Network names come from CBIG's ordered-name CSVs. The 7 and 17 categories are represented independently in each hemisphere, not split into connected components. |
+| fsaverage `aseg.mgz` and T1 | [Official fsaverage MRI directory](https://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/tutorial_versions_centos6/freesurfer/subjects/fsaverage/mri/); FreeSurfer licence above | 27 tissue and ventricular structures are extracted. The T1 is used only to estimate the affine alignment. Neither raw file is shipped. |
 | ICBM 152 nonlinear asymmetric 2009c T1 and mask, 2 mm | [MNI dataset and terms](https://nist.mni.mcgill.ca/icbm-152-nonlinear-atlases-2009/); [McGill licence page](https://www.mcgill.ca/bic/software/tools-data-analysis/anatomical-mri/atlases/icbm152-non-linear-2009); [TemplateFlow mirror licence](https://github.com/templateflow/tpl-MNI152NLin2009cAsym/blob/master/LICENSE) | The MNI permissive notice permits use, modification, copying, and distribution with copyright retention. Included as an 8-bit display volume from TemplateFlow's already downsampled 2 mm distribution. The mask is used for registration/QA only. This is a population template, not an individual scan. |
 
 No requested dataset was excluded because of redistribution restrictions. We did
@@ -32,24 +32,25 @@ The downloader checks these hashes on reruns and fails if a source changes.
 | Source cortical surface states | 8: 2 hemispheres × pial, white, inflated, sphere |
 | Derived flat maps | 2, computed from corresponding sphere vertices |
 | Rendered cortical meshes | 2, with one shared topology each |
-| Unique cortical vertices | 10,242 per hemisphere; 20,484 total |
-| Cortical triangles | 20,480 per hemisphere; 40,960 total |
+| Unique cortical vertices | 40,962 per hemisphere; 81,924 total |
+| Cortical triangles | 81,920 per hemisphere; 163,840 total |
 | Desikan–Killiany named parcels | 68: 34 per hemisphere |
 | Destrieux named parcels | 148: 74 per hemisphere |
 | Yeo 7-network hemisphere labels | 14: 7 per hemisphere |
 | Yeo 17-network hemisphere labels | 34: 17 per hemisphere |
 | Named hemisphere-specific labels across schemes | 264 |
 | Additional source medial-wall / unknown / corpus-callosum labels | 10 across all schemes |
-| Separate aseg structure meshes | 21 |
-| aseg triangles | 50,672 |
+| Separate aseg structure meshes | 27 |
+| aseg triangles | 62,754 |
 | Display volume | 97 × 115 × 97 voxels, 2 mm isotropic |
 
-The 21 aseg structures are bilateral thalamus, caudate, putamen, pallidum,
+The 27 aseg structures are bilateral thalamus, caudate, putamen, pallidum,
 hippocampus, amygdala, nucleus accumbens, ventral diencephalon, cerebellar cortex,
 cerebellar white matter, and one midline brainstem. The brainstem and ventral
 diencephalon are not divided beyond what the source segmentation supplies.
-Ventricles, choroid plexus, vessels, and cerebral white matter are not presented
-as additional subcortical structures.
+Six ventricular meshes are also included: bilateral lateral and inferior lateral
+ventricles, plus the third and fourth ventricles. Choroid plexus, vessels, and
+cerebral white matter are not presented as additional deep structures.
 
 ## Scientific references
 

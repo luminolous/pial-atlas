@@ -31,7 +31,7 @@ test('All imported labels and structures have reachable hierarchy membership',()
     const nodes=hierarchy(atlas,scheme);const labels=[],structures=[],visited=new Set();
     function visit(node){assert.ok(!visited.has(node.key));visited.add(node.key);for(const child of node.children){if(child.type==='group')visit(child);else if(child.type==='parcel')labels.push(child.id);else structures.push(child.id);}}
     visit(nodes.get('brain'));
-    assert.equal(visited.size,nodes.size);assert.equal(labels.length,atlas.parcels.filter(p=>p.scheme===scheme).length);assert.equal(new Set(labels).size,labels.length);assert.equal(structures.length,21);
+    assert.equal(visited.size,nodes.size);assert.equal(labels.length,atlas.parcels.filter(p=>p.scheme===scheme).length);assert.equal(new Set(labels).size,labels.length);assert.equal(structures.length,27);
   }
 });
 test('Group opacity composes with hidden masks and restore all',()=>{

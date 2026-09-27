@@ -18,9 +18,9 @@ CBIG = 'https://raw.githubusercontent.com/ThomasYeoLab/CBIG/master/stable_projec
 FILES = {}
 for hemi in ['lh', 'rh']:
     for surface in ['pial', 'white', 'inflated', 'sphere', 'sphere.reg', 'sulc']:
-        FILES[f'{hemi}.{surface}'] = (FS + f'subjects/fsaverage5/surf/{hemi}.{surface}', 'FreeSurfer')
+        FILES[f'fsaverage6/{hemi}.{surface}'] = (FS + f'subjects/fsaverage6/surf/{hemi}.{surface}', 'FreeSurfer')
     for scheme in ['aparc', 'aparc.a2009s', 'Yeo2011_7Networks_N1000', 'Yeo2011_17Networks_N1000']:
-        FILES[f'{hemi}.{scheme}.annot'] = (FS + f'subjects/fsaverage5/label/{hemi}.{scheme}.annot', 'FreeSurfer; CBIG MIT for Yeo')
+        FILES[f'fsaverage6/{hemi}.{scheme}.annot'] = (FS + f'subjects/fsaverage6/label/{hemi}.{scheme}.annot', 'FreeSurfer; CBIG MIT for Yeo')
 for name in ['aseg.mgz', 'T1.mgz', 'brainmask.mgz']:
     FILES[name] = (FS + 'subjects/fsaverage/mri/' + name, 'FreeSurfer')
 FILES['FreeSurferColorLUT.txt'] = (FS + 'FreeSurferColorLUT.txt', 'FreeSurfer')
@@ -54,6 +54,7 @@ def main():
     def download(item):
         name, (url, licence) = item
         path = RAW / name
+        path.parent.mkdir(parents=True, exist_ok=True)
         if not path.exists():
             path.write_bytes(get(url))
         digest = hashlib.sha256(path.read_bytes()).hexdigest()

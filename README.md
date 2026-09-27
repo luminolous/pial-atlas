@@ -1,7 +1,7 @@
-# Pial — An offline atlas of the human brain
+# Pial Atlas
 
-Pial is a working, interactive Three.js atlas built from real FreeSurfer
-fsaverage5 surfaces and annotations, fsaverage aseg, and the MNI152 ICBM 2009c
+Pial Atlas is a working, interactive Three.js atlas built from real FreeSurfer
+fsaverage6 surfaces and annotations, fsaverage aseg, and the MNI152 ICBM 2009c
 nonlinear asymmetric T1 population template. It runs entirely on your device.
 
 ## Open the application
@@ -27,8 +27,8 @@ byte count and SHA-256 are recorded in `reports/build.json`.
   inspect a parcel by its label ID. Use **Focus**, **Isolate**, **Hide**, or
   **Parent** in the inspector.
 - Choose Desikan–Killiany, Destrieux, Yeo 7, or Yeo 17. The scheme changes
-  instantly through a shader lookup; it does not reload geometry. Open the
-  **Parcellation legend** tab for the active labels and their display colours.
+  through a 300 ms shader lookup cross-fade without reloading geometry. The selector
+  sits directly above its labels in the **Parcellation legend** tab.
 - Move the surface slider through pial, white, inflated, sphere, and flat map.
   Each hemisphere retains its shared vertex correspondence. Separate the
   hemispheres or lift the deep structures with the independent layout sliders.
@@ -46,13 +46,25 @@ byte count and SHA-256 are recorded in `reports/build.json`.
   **Slices** provides sagittal, coronal, and axial clipping, reverse direction,
   textured T1 planes, and MNI coordinates. Multiple planes can be active.
 - Toggle labels, automatic rotation, or fullscreen. **PNG** exports the current
-  brain viewport. The seven-step **Guided journey** covers the whole brain,
+  brain viewport with the original brain glyph, Pial Atlas watermark, and source
+  attribution. The seven-step **Guided journey** covers the whole brain,
   lobes, a named parcel, inflation, networks, and deep structures. It preserves
   existing hidden rules.
-- Press `/` to search, `Escape` to close tool popovers, or `Ctrl/Cmd+Z` to undo.
+- Press `/` to search, `Escape` to close the inspector and tool popovers, or
+  `Ctrl/Cmd+Z` to undo. Camera shortcuts are `0` (home), `1` (lateral), `2`
+  (medial), `3` (dorsal), `4` (ventral), `5` (anterior), and `6` (posterior).
+  Use `D` for display, `S` for slices, `L` for labels, `A` for automatic
+  exploration, `F` for fullscreen, and `P` for PNG export. Tooltips show these keys.
 
 On narrow screens, the structure panel moves below the viewer so the anatomy
 and controls remain usable without horizontal scrolling.
+
+The navigation list has a visible scrollbar and scroll shadows. Its opacity,
+undo, restore, and reset footer remains accessible. Selection opens a separate
+canvas inspector whose content scrolls independently of its action buttons.
+The guided journey uses its own dock, with the camera offset into the available
+space. Operating-system reduced-motion settings disable camera, layout, and
+colour animations and automatic rotation.
 
 ## What is included
 
@@ -61,20 +73,22 @@ and controls remain usable without horizontal scrolling.
 | Cortical surface states | 8: pial, white, inflated, sphere × 2 hemispheres |
 | Derived flat maps | 2 |
 | Shared cortical meshes | 2 |
-| Unique cortical vertices | 20,484 total; 10,242 per hemisphere |
-| Cortical triangles | 40,960 |
+| Unique cortical vertices | 81,924 total; 40,962 per hemisphere |
+| Cortical triangles | 163,840 |
 | Desikan–Killiany named parcels | 68 |
 | Destrieux named parcels | 148 |
 | Yeo 7-network labels | 14 hemisphere-specific labels; 7 networks |
 | Yeo 17-network labels | 34 hemisphere-specific labels; 17 networks |
 | Named labels across schemes | 264 |
 | Additional unassigned / medial-wall source labels | 10 |
-| Selectable aseg meshes | 21, with 50,672 triangles |
+| Selectable aseg meshes | 27, with 62,754 triangles |
 | MNI T1 display volume | 97 × 115 × 97, at 2 mm |
 
-The 21 aseg meshes include bilateral thalamus, caudate, putamen, pallidum,
+The 27 aseg meshes include bilateral thalamus, caudate, putamen, pallidum,
 hippocampus, amygdala, nucleus accumbens, ventral diencephalon, cerebellar cortex,
-and cerebellar white matter, plus one brainstem. No subdivisions are invented
+and cerebellar white matter, plus one brainstem. Six ventricular meshes include
+bilateral lateral and inferior lateral ventricles, plus the third and fourth
+ventricles. No subdivisions are invented
 inside an undivided source label.
 
 ## Interpret the atlas correctly
@@ -116,6 +130,11 @@ absent. It does not need any raw dataset downloads or Python packages. The
 output remains a single offline HTML file. `scripts/build.mjs` is portable
 between Windows, macOS, and Linux.
 
+To start it from a terminal in the project directory, use `Start-Process
+.\dist\Pial-Atlas.html` in Windows PowerShell, `open dist/Pial-Atlas.html` on
+macOS, or `xdg-open dist/Pial-Atlas.html` on Linux. Closing the browser tab closes
+the application; no local server or background service needs to be stopped.
+
 ## Reproduce the raw-data pipeline
 
 Python 3.13 was used for this release. All direct Python versions are in
@@ -151,6 +170,7 @@ also excluded from release packaging. The pipeline reuses the saved affine in
 No FreeSurfer executable, licence key, or credentials are needed to reproduce
 these public-data derivatives.
 
+The fsaverage6 sources contain 40,962 corresponding vertices per hemisphere.
 The pipeline performs correspondence validation, annotation decoding, a
 documented DK lobe mapping, measured Destrieux overlap, aseg marching cubes,
 centroid-preserving Taubin smoothing, coordinate transformation, T1 intensity
@@ -165,6 +185,12 @@ node tests/compression.mjs
 npm run test:state
 npm run test:browser
 ```
+
+The state command includes the additional lift-layout, categorical picking,
+GPU correspondence, boundary-filter coverage, and motion tests. The browser
+command also runs `tests/browser-polish.mjs`: 1920×1080, 1440×900, 1280×720,
+short-height reachability, all surface states, every journey step, lift
+collisions, pinned inspector actions, toolbar spacing, and reduced motion.
 
 Geometry and compression tests need the raw cache and intermediate buffers
 produced by the pipeline. State and browser tests use the shipped processed
@@ -183,6 +209,14 @@ network requests fail the suite. Screenshots are stored in `reports/`.
 
 See `docs/VALIDATION.md` and the machine-readable reports for actual results,
 including the limitations of the spatial checks.
+The [offline visual review gallery](reports/visual-review.html) links to all
+57 screenshots from the additional layout and motion suite.
+
+To package and independently verify the clean release after testing, run
+`python scripts/package_release.py` and `python scripts/verify_release.py`.
+The latter extracts the archive into an ignored temporary build directory,
+installs locked JavaScript dependencies from npm's offline cache, and requires
+the rebuilt standalone HTML to be byte-for-byte identical.
 
 ## Source layout and future layers
 

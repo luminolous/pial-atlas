@@ -1,16 +1,16 @@
 {
   "cortex": {
     "lh": {
-      "pialWithin4mmBrainMaskFraction": 0.9910173794180824,
-      "whiteWithinBrainMaskFraction": 0.9859402460456942
+      "pialWithin4mmBrainMaskFraction": 0.991162540891558,
+      "whiteWithinBrainMaskFraction": 0.985083736145696
     },
     "rh": {
-      "pialWithin4mmBrainMaskFraction": 0.9982425307557118,
-      "whiteWithinBrainMaskFraction": 0.9972661589533294
+      "pialWithin4mmBrainMaskFraction": 0.998339924808359,
+      "whiteWithinBrainMaskFraction": 0.9971681070260241
     }
   },
   "asegVsMNI2009cBrainMaskDice": 0.8809637481980709,
-  "interpretation": "Affine population-template fit only. aseg excludes CSF and is not a full brain mask; Dice is a coarse overlap check. Contours must be inspected.",
+  "interpretation": "Affine population-template fit only. aseg is not a full brain mask; Dice is a coarse overlap check. Contours must be inspected.",
   "sliceCoordinatesRASmm": {
     "sagittal": -24,
     "coronal": -20,

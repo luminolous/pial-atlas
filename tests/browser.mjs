@@ -14,6 +14,7 @@ page.on('pageerror',e=>errors.push(String(e)));
 page.on('console',m=>{if(m.type()==='error')errors.push(m.text());});
 page.on('request',r=>{if(/^https?:/.test(r.url()))requests.push(r.url());});
 async function check(name,fn){await fn();checks.push(name);console.log('PASS',name);}
+async function scheme(value){const explorer=await page.locator('#explorer-view').isVisible();await page.locator('#legend-tab').click();await page.selectOption('#scheme',value);if(explorer)await page.locator('#explore-tab').click();}
 async function settled(){await page.waitForTimeout(850);}
 async function slider(id,value){await page.locator('#'+id).fill(String(value));await page.locator('#'+id).dispatchEvent('input');await page.locator('#'+id).dispatchEvent('change');}
 try{
@@ -34,10 +35,10 @@ try{
   });
   const initial=await page.evaluate(()=>({ids:atlasApp.renderer.cortices.map(m=>m.geometry.uuid),parcel:atlasApp.store.state.selection.id}));
   await check('Hidden vertex mask persists through every morph and scheme',async()=>{
-    await page.locator('[data-inspect="hide"]').click();
+    await page.locator('[data-inspect="hide"]').click();await settled();
     const hiddenCount=await page.evaluate(()=>atlasApp.renderer.cortices[0].geometry.getAttribute('atlasVisibility').array.filter(v=>v===0).length);assert.ok(hiddenCount>100);
     for(const scheme of ['destrieux','yeo7','yeo17','dk']){
-      await page.selectOption('#scheme',scheme);
+      await page.locator('#legend-tab').click();await page.selectOption('#scheme',scheme);await page.locator('#explore-tab').click();
       assert.match(await page.locator('#inspector').textContent(),/Left cerebral hemisphere → Frontal lobe/);
       for(const morph of [0,1,2,3,4]){
         await slider('morph',morph);
@@ -58,7 +59,7 @@ try{
   await check('Undo and restore all recover visibility and opacity',async()=>{
     await page.locator('#restore').click();assert.equal(await page.evaluate(()=>atlasApp.store.state.hiddenParcels.length),0);
     await page.locator('#undo').click();assert.equal(await page.evaluate(()=>atlasApp.store.state.hiddenParcels.length),1);
-    await page.locator('#restore').click();await slider('opacity',.45);assert.ok(await page.evaluate(()=>atlasApp.renderer.cortices[0].geometry.getAttribute('atlasVisibility').array.some(v=>v>.44&&v<.46)));
+    await page.locator('#restore').click();await slider('opacity',.45);await settled();assert.ok(await page.evaluate(()=>atlasApp.renderer.cortices[0].geometry.getAttribute('atlasVisibility').array.some(v=>v>.44&&v<.46)));
     await page.locator('#undo').click();assert.equal(await page.locator('#opacity').inputValue(),'1');
   });
   await check('Search spans all schemes and selects independent subcortical meshes',async()=>{
@@ -66,9 +67,9 @@ try{
     assert.equal(await page.locator('#scheme').inputValue(),'yeo17');assert.match(await page.locator('#inspector').textContent(),/Visual Central/);
     await page.locator('#search').fill('Left thalamus');await page.locator('#search-results button').first().click();
     assert.equal(await page.evaluate(()=>atlasApp.store.state.selection.type),'structure');
-    await page.locator('[data-inspect="isolate"]').click();assert.equal(await page.evaluate(()=>atlasApp.renderer.deep.filter(m=>m.visible).length),1);
-    await page.locator('[data-inspect="hide"]').click();assert.equal(await page.evaluate(()=>atlasApp.renderer.deep.filter(m=>m.visible).length),0);
-    await page.locator('#undo').click();assert.equal(await page.evaluate(()=>atlasApp.renderer.deep.filter(m=>m.visible).length),1);
+    await page.locator('[data-inspect="isolate"]').click();await settled();assert.equal(await page.evaluate(()=>atlasApp.renderer.deep.filter(m=>m.visible).length),1);
+    await page.locator('[data-inspect="hide"]').click();await settled();assert.equal(await page.evaluate(()=>atlasApp.renderer.deep.filter(m=>m.visible).length),0);
+    await page.locator('#undo').click();await settled();assert.equal(await page.evaluate(()=>atlasApp.renderer.deep.filter(m=>m.visible).length),1);
     await page.locator('#restore').click();await page.locator('#reset').click();await settled();
   });
   await check('Click picking returns a label ID and an inspectable structure',async()=>{
@@ -79,9 +80,9 @@ try{
   await check('All camera presets, free rotation, wheel zoom, and two-finger pinch operate',async()=>{
     for(const preset of ['lateral','medial','dorsal','ventral','anterior','posterior','home']){await page.locator(`[data-preset="${preset}"]`).click();await page.waitForTimeout(80);}
     await page.locator('#restore').click();await settled();
-    const before=await page.evaluate(()=>atlasApp.renderer.camera.position.toArray());const box=await page.locator('#stage').boundingBox();
+    const beforeZoom=await page.evaluate(()=>atlasApp.renderer.camera.zoom);const before=await page.evaluate(()=>atlasApp.renderer.camera.position.toArray());const box=await page.locator('#stage').boundingBox();
     await page.mouse.move(box.x+box.width*.55,box.y+box.height*.5);await page.mouse.down();await page.mouse.move(box.x+box.width*.68,box.y+box.height*.58,{steps:10});await page.mouse.up();await page.mouse.wheel(0,-140);await settled();
-    const after=await page.evaluate(()=>({position:atlasApp.renderer.camera.position.toArray(),zoom:atlasApp.renderer.camera.zoom}));assert.notDeepEqual(after.position,before);assert.ok(after.zoom>1);
+    const after=await page.evaluate(()=>({position:atlasApp.renderer.camera.position.toArray(),zoom:atlasApp.renderer.camera.zoom}));assert.notDeepEqual(after.position,before);assert.ok(after.zoom>beforeZoom);
     const client=await context.newCDPSession(page),cx=box.x+box.width*.5,cy=box.y+box.height*.5;
     await client.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:cx-40,y:cy,id:1},{x:cx+40,y:cy,id:2}]});
     for(let d=45;d<=90;d+=5)await client.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:cx-d,y:cy,id:1},{x:cx+d,y:cy,id:2}]});
@@ -104,13 +105,13 @@ try{
   await check('Legend, labels, automatic exploration, and PNG export work',async()=>{
     await page.locator('#legend-tab').click();assert.equal(await page.locator('#legend-list .structure-row').count(),72);
     await page.locator('#labels-toggle').click();await settled();assert.ok(await page.locator('.anatomical-label').count()>0);
-    await page.selectOption('#scheme','yeo7');await settled();assert.ok(await page.locator('.anatomical-label').count()>0);await page.selectOption('#scheme','dk');
+    await scheme('yeo7');await settled();assert.ok(await page.locator('.anatomical-label').count()>0);await scheme('dk');
     await page.locator('#auto-toggle').click();assert.equal(await page.evaluate(()=>atlasApp.renderer.controls.autoRotate),true);await page.locator('#auto-toggle').click();
     const downloadPromise=page.waitForEvent('download');await page.locator('#export').click();const download=await downloadPromise;assert.equal(download.suggestedFilename(),'Pial-Atlas.png');await download.saveAs('reports/exported-brain.png');
     await page.locator('#labels-toggle').click();await page.locator('#explore-tab').click();
   });
   await check('Inflated, spherical, and derived flat views render without geometry reload',async()=>{
-    await page.selectOption('#scheme','yeo17');
+    await scheme('yeo17');
     for(const [name,m] of [['inflated',2],['sphere',3],['flat',4]]){await slider('morph',m);await settled();await page.locator('#toast').waitFor({state:'hidden'});await page.screenshot({path:`reports/browser-${name}.png`});assert.deepEqual(await page.evaluate(()=>atlasApp.renderer.cortices.map(m=>m.geometry.uuid)),initial.ids);}
     await page.locator('#reset').click();await settled();
   });

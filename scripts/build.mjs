@@ -4,6 +4,8 @@ import zlib from 'node:zlib';
 import crypto from 'node:crypto';
 import { build } from 'esbuild';
 import { MeshoptEncoder } from 'meshoptimizer';
+import {BRAIN_GLYPH} from '../src/brand.js';
+import {MOTION,EASING} from '../src/motion.js';
 
 const root = path.resolve(import.meta.dirname, '..');
 const assetPath = path.join(root, 'data/atlas.meshopt.json');
@@ -58,8 +60,9 @@ for (const [name, file] of [['THREE-MIT.txt','node_modules/three/LICENSE'],['MES
   if (!notices.some(n => n.startsWith(name))) notices.push(`${name}\n${text}`);
 }
 const bundled = await build({entryPoints:[path.join(root,'src/main.js')],bundle:true,write:false,minify:true,format:'iife',target:'es2022',legalComments:'inline'});
-const css = await fs.readFile(path.join(root, 'src/style.css'), 'utf8');
-const template = await fs.readFile(path.join(root, 'src/index.html'), 'utf8');
+const tokens=`:root{${Object.entries(MOTION).map(([key,value])=>`--motion-${key}:${value}ms;`).join('')}--ease-standard:${EASING.standard};--ease-toggle:${EASING.toggle};}`;
+const css = tokens + await fs.readFile(path.join(root, 'src/style.css'), 'utf8');
+const template = (await fs.readFile(path.join(root, 'src/index.html'), 'utf8')).replace('<!-- BRAIN GLYPH -->',BRAIN_GLYPH).replace('<!-- FAVICON -->','data:image/svg+xml,'+encodeURIComponent(BRAIN_GLYPH));
 const encoded = zlib.gzipSync(Buffer.from(JSON.stringify(atlas)), {level:9}).toString('base64');
 // Replacer functions preserve literal JavaScript replacement patterns such as $&.
 const html = template.replace('/* STYLES */',()=>css).replace('/* DATA */',()=>`window.__ATLAS_DATA__=${JSON.stringify(encoded)};window.__LICENSES__=${JSON.stringify(notices.join('\n\n')).replaceAll('<','\\u003c')};`).replace('/* APPLICATION */',()=>bundled.outputFiles[0].text.replaceAll('</script','<\\/script'));

@@ -1,4 +1,4 @@
-"""Reproducible fsaverage5 / aseg / MNI2009c conversion. No synthetic anatomy.
+"""Reproducible fsaverage6 / aseg / MNI2009c conversion. No synthetic anatomy.
 
 Writes typed buffers to build/, metadata to data/, and spatial QA to reports/.
 Compression and inline packaging are handled by scripts/build.mjs.
@@ -119,7 +119,7 @@ def qa_alignment(hemispheres, subs, target, mask, transform, aseg):
     sourcevox = apply(apply(apply(xyz,target.affine),np.linalg.inv(transform)), np.linalg.inv(aseg.header.get_vox2ras_tkr()))
     warped = ndimage.map_coordinates(source_mask.astype(np.uint8),sourcevox.T,order=0).reshape(target.shape)>0
     dice = 2*np.count_nonzero(warped & maskdata)/(warped.sum()+maskdata.sum())
-    report = {'cortex':samples,'asegVsMNI2009cBrainMaskDice':float(dice), 'interpretation':'Affine population-template fit only. aseg excludes CSF and is not a full brain mask; Dice is a coarse overlap check. Contours must be inspected.', 'sliceCoordinatesRASmm':{'sagittal':-24,'coronal':-20,'axial':20}}
+    report = {'cortex':samples,'asegVsMNI2009cBrainMaskDice':float(dice), 'interpretation':'Affine population-template fit only. aseg is not a full brain mask; Dice is a coarse overlap check. Contours must be inspected.', 'sliceCoordinatesRASmm':{'sagittal':-24,'coronal':-20,'axial':20}}
     fig, axes = plt.subplots(2,3,figsize=(15,10),facecolor='#f4f6f8')
     for axindex,(axis,world) in enumerate([(0,-24),(1,-20),(2,20)]):
         idx = int(round((world-target.affine[axis,3])/target.affine[axis,axis]))
@@ -174,8 +174,8 @@ def main():
     for hemi in ['lh','rh']:
         raw={};faces=None
         for state in ['pial','white','inflated','sphere']:
-            v,f=nib.freesurfer.read_geometry(RAW/f'{hemi}.{state}')
-            assert v.shape==(10242,3)
+            v,f=nib.freesurfer.read_geometry(RAW/'fsaverage6'/f'{hemi}.{state}')
+            assert v.shape==(40962,3)
             if faces is not None: assert np.array_equal(f,faces),f'Topology mismatch {hemi}.{state}'
             faces=f;raw[state]=v
         positions={k:apply(v,transform) for k,v in raw.items()}
@@ -185,12 +185,12 @@ def main():
             if state=='sphere':positions[state]*=.67
             positions[state]+=positions['pial'].mean(0)
         positions['flat']=flat_map(raw['sphere'],hemi)
-        labels=np.zeros((10242,4),dtype=np.uint16)
-        dkl,_,dkn=nib.freesurfer.read_annot(RAW/f'{hemi}.aparc.annot')
+        labels=np.zeros((40962,4),dtype=np.uint16)
+        dkl,_,dkn=nib.freesurfer.read_annot(RAW/'fsaverage6'/f'{hemi}.aparc.annot')
         lobes=np.array([LOBE_IDS.get(DK_LOBE.get(dkn[x].decode(),'unassigned'),0) if x>=0 else 0 for x in dkl],np.uint8)
         for si,(scheme,file,_) in enumerate(SCHEMES):
-            lab,ctab,names=nib.freesurfer.read_annot(RAW/f'{hemi}.{file}.annot')
-            assert len(lab)==10242
+            lab,ctab,names=nib.freesurfer.read_annot(RAW/'fsaverage6'/f'{hemi}.{file}.annot')
+            assert len(lab)==40962
             lab[lab<0]=0
             for li,byte_name in enumerate(names):
                 ids=np.where(lab==li)[0]
@@ -214,14 +214,14 @@ def main():
                     color=np.clip(base + ((li*7)%23-11),0,255).tolist()
                 if not assigned:color=PALETTE['unassigned']
                 labels[ids,si]=nextid
-                meta['parcels'].append({'id':nextid,'key':f'{hemi}:{scheme}:{li}','localId':li,'nativeName':native,'name':name,'hemisphere':hemi,'scheme':scheme,'lobe':lobe,'lobeOverlap':overlaps,'assigned':assigned,'vertices':len(ids),'centroid':positions['pial'][ids].mean(0).round(3).tolist(),'color':color,'source':f'FreeSurfer fsaverage5 / {file}.annot'})
+                meta['parcels'].append({'id':nextid,'key':f'{hemi}:{scheme}:{li}','localId':li,'nativeName':native,'name':name,'hemisphere':hemi,'scheme':scheme,'lobe':lobe,'lobeOverlap':overlaps,'assigned':assigned,'vertices':len(ids),'centroid':positions['pial'][ids].mean(0).round(3).tolist(),'color':color,'source':f'FreeSurfer fsaverage6 / {file}.annot'})
                 nextid+=1
-        sulc=nib.freesurfer.read_morph_data(RAW/f'{hemi}.sulc')
+        sulc=nib.freesurfer.read_morph_data(RAW/'fsaverage6'/f'{hemi}.sulc')
         flat_edges=np.linalg.norm(positions['flat'][faces]-positions['flat'][np.roll(faces,1,axis=1)],axis=2)
         sphere_unit=raw['sphere']/np.linalg.norm(raw['sphere'],axis=1)[:,None]
         antipodal_cap=sphere_unit[:,0]*(-1 if hemi=='lh' else 1)<-.98
         seam=antipodal_cap[faces].any(1)|(flat_edges.max(1)>25)
-        surface={'hemisphere':hemi,'vertices':10242,'triangles':len(faces),'index':write_array(hemi+'-index',faces,'<u4'),'positions':{k:write_array(hemi+'-'+k,v,'<f4') for k,v in positions.items()},'labels':write_array(hemi+'-labels',labels,'<u2'),'lobes':write_array(hemi+'-lobes',lobes,'u1'),'sulc':write_array(hemi+'-sulc',sulc,'<f4'),'flatSeamFaces':np.where(seam)[0].tolist()}
+        surface={'hemisphere':hemi,'vertices':40962,'triangles':len(faces),'index':write_array(hemi+'-index',faces,'<u4'),'positions':{k:write_array(hemi+'-'+k,v,'<f4') for k,v in positions.items()},'labels':write_array(hemi+'-labels',labels,'<u2'),'lobes':write_array(hemi+'-lobes',lobes,'u1'),'sulc':write_array(hemi+'-sulc',sulc,'<f4'),'flatSeamFaces':np.where(seam)[0].tolist()}
         meta['surfaces'].append(surface)
         qa_hemi[hemi]={'pial':positions['pial'],'white':positions['white'],'raw_pial':raw['pial'],'raw_white':raw['white'],'faces':faces}
     lut={}
@@ -249,7 +249,7 @@ def main():
     scale=np.percentile(vol[inside],99.7)
     vol=np.clip(vol/scale*255,0,255).astype(np.uint8)
     meta['volume']={'name':'ICBM 2009c nonlinear asymmetric T1 population template','shape':list(vol.shape),'affine':target.affine.tolist(),'spacingMm':[2,2,2],'data':write_array('mni-t1',vol,'u1'),'windowMaxOriginal':float(scale)}
-    meta['counts']={'importedSurfaceStates':8,'derivedFlatMaps':2,'corticalMeshes':2,'verticesPerHemisphere':10242,'corticalTriangles':40960,'parcels':{k:sum(p['assigned'] and p['scheme']==k for p in meta['parcels']) for k,_,_ in SCHEMES},'unassignedLabels':sum(not p['assigned'] for p in meta['parcels']),'asegStructures':len(subs),'asegTriangles':sum(s['triangles'] for s in subs)}
+    meta['counts']={'importedSurfaceStates':8,'derivedFlatMaps':2,'corticalMeshes':2,'verticesPerHemisphere':40962,'corticalTriangles':163840,'parcels':{k:sum(p['assigned'] and p['scheme']==k for p in meta['parcels']) for k,_,_ in SCHEMES},'unassignedLabels':sum(not p['assigned'] for p in meta['parcels']),'asegStructures':len(subs),'asegTriangles':sum(s['triangles'] for s in subs)}
     (OUT/'atlas.json').write_text(json.dumps(meta,separators=(',',':')))
     (ROOT/'data/manifest.json').write_text(json.dumps({k:meta[k] for k in ['version','coordinateSpace','counts','schemes','lobeMappingSource']},indent=2))
     print(json.dumps(meta['counts'],indent=2),flush=True)

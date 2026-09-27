@@ -24,6 +24,12 @@ DESTRIEUX_NAMES = [
 
 # aseg integer IDs. Ventral DC is deliberately not subdivided or renamed.
 SUBCORTICAL = {
+    4: ('Left lateral ventricle', 'lh', 'ventricles'),
+    5: ('Left inferior lateral ventricle', 'lh', 'ventricles'),
+    14: ('Third ventricle', 'midline', 'ventricles'),
+    15: ('Fourth ventricle', 'midline', 'ventricles'),
+    43: ('Right lateral ventricle', 'rh', 'ventricles'),
+    44: ('Right inferior lateral ventricle', 'rh', 'ventricles'),
     7: ('Left cerebellar white matter', 'lh', 'cerebellum'),
     8: ('Left cerebellar cortex', 'lh', 'cerebellum'),
     10: ('Left thalamus', 'lh', 'diencephalon'),

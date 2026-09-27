@@ -25,17 +25,17 @@ def test_raw_source_checksums():
 def test_shared_topology_and_vertex_correspondence(hemi):
     surface=next(s for s in META['surfaces'] if s['hemisphere']==hemi)
     index=array(surface['index'])
-    assert index.shape==(20480,3)
-    assert index.min()==0 and index.max()==10241
+    assert index.shape==(81920,3)
+    assert index.min()==0 and index.max()==40961
     assert 0<len(surface['flatSeamFaces'])<len(index)*.05
     for state in ['pial','white','inflated','sphere']:
-        raw,faces=nib.freesurfer.read_geometry(RAW/f'{hemi}.{state}')
-        assert raw.shape==(10242,3)
+        raw,faces=nib.freesurfer.read_geometry(RAW/'fsaverage6'/f'{hemi}.{state}')
+        assert raw.shape==(40962,3)
         np.testing.assert_array_equal(index,faces)
         assert np.isfinite(array(surface['positions'][state])).all()
     for state,desc in surface['positions'].items():
         pos=array(desc);tri=pos[index]
-        assert pos.shape==(10242,3)
+        assert pos.shape==(40962,3)
         area=np.linalg.norm(np.cross(tri[:,1]-tri[:,0],tri[:,2]-tri[:,0]),axis=1)
         assert np.min(area)>1e-7,f'Degenerate triangles in {hemi}.{state}'
 
@@ -45,7 +45,7 @@ def test_explicit_surface_transform(hemi):
     matrix=np.array(META['alignment']['surfaceMNI305ToMNI2009cRAS'])
     assert .8<np.linalg.det(matrix[:3,:3])<1.3
     for state in ['pial','white']:
-        vertices,_=nib.freesurfer.read_geometry(RAW/f'{hemi}.{state}')
+        vertices,_=nib.freesurfer.read_geometry(RAW/'fsaverage6'/f'{hemi}.{state}')
         expected=vertices@matrix[:3,:3].T+matrix[:3,3]
         np.testing.assert_allclose(array(surface['positions'][state]),expected,atol=1e-5)
 
@@ -53,11 +53,11 @@ def test_explicit_surface_transform(hemi):
 def test_every_vertex_has_every_scheme_label(hemi):
     surface=next(s for s in META['surfaces'] if s['hemisphere']==hemi)
     labels=array(surface['labels'])
-    assert labels.shape==(10242,4) and np.all(labels>0)
+    assert labels.shape==(40962,4) and np.all(labels>0)
     for si,scheme in enumerate(['dk','destrieux','yeo7','yeo17']):
         parcels=[p for p in META['parcels'] if p['scheme']==scheme and p['hemisphere']==hemi]
         assert set(np.unique(labels[:,si]))==set(p['id'] for p in parcels)
-        assert sum(p['vertices'] for p in parcels)==10242
+        assert sum(p['vertices'] for p in parcels)==40962
         for parcel in parcels:assert np.count_nonzero(labels[:,si]==parcel['id'])==parcel['vertices']
 
 def test_cited_lobe_membership_and_measured_overlap():
@@ -74,7 +74,7 @@ def test_cited_lobe_membership_and_measured_overlap():
                 assert abs(value-np.mean(lobes[vertices]==LOBE_IDS[name]))<=.000051
 
 def test_aseg_geometry_integrity_winding_and_position():
-    assert len(META['structures'])==21
+    assert len(META['structures'])==27
     for structure in META['structures']:
         vertices=array(structure['positions']);faces=array(structure['index'])
         assert np.isfinite(vertices).all()
@@ -107,4 +107,4 @@ def test_volume_affine_and_sampling():
 def test_actual_imported_counts():
     assert META['counts']['parcels']=={'dk':68,'destrieux':148,'yeo7':14,'yeo17':34}
     assert META['counts']['unassignedLabels']==10
-    assert META['counts']['corticalTriangles']==40960
+    assert META['counts']['corticalTriangles']==163840

@@ -5,8 +5,8 @@
     "importedSurfaceStates": 8,
     "derivedFlatMaps": 2,
     "corticalMeshes": 2,
-    "verticesPerHemisphere": 10242,
-    "corticalTriangles": 40960,
+    "verticesPerHemisphere": 40962,
+    "corticalTriangles": 163840,
     "parcels": {
       "dk": 68,
       "destrieux": 148,
@@ -14,8 +14,8 @@
       "yeo17": 34
     },
     "unassignedLabels": 10,
-    "asegStructures": 21,
-    "asegTriangles": 50672
+    "asegStructures": 27,
+    "asegTriangles": 62754
   },
   "schemes": [
     {

@@ -16,6 +16,12 @@ def main():
     for directory in DIRECTORIES:
         files.extend(p for p in (ROOT/directory).rglob('*') if p.is_file() and '__pycache__' not in p.parts)
     files.extend(ROOT/'reports'/name for name in REPORTS if (ROOT/'reports'/name).exists())
+    polish=ROOT/'reports/polish-tests.json'
+    if polish.exists():
+        files.append(polish)
+        files.extend(ROOT/'reports'/name for name in json.loads(polish.read_text(encoding='utf-8')).get('screenshots',[]))
+    gallery=ROOT/'reports/visual-review.html'
+    if gallery.exists():files.append(gallery)
     archive=OUTPUT/'Pial-Atlas-source-and-app.zip'
     with zipfile.ZipFile(archive,'w',compression=zipfile.ZIP_DEFLATED,compresslevel=9) as z:
         for file in sorted(set(files)):
