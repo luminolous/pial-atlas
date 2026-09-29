@@ -31,7 +31,7 @@ function renderRows(items,target){
   const scroll=target.scrollTop;const html=items.map((item,index)=>{
     const ref=refFor(item),hidden=isHidden(ref),selection=store.state.selection,selected=selection?.type===ref.type&&(ref.type==='group'?selection.key===ref.key:selection.id===ref.id),title=item.name;
     const count=item.type==='group'?`${item.children.length} ${item.children.some(x=>x.type==='group')?(item.children.length===1?'region':'regions'):(item.children.length===1?'structure':'structures')}`:item.type==='parcel'?`${side(item.hemisphere)} · ${item.assigned?item.areaPercent.toFixed(1)+'% of cortex':'Unassigned'}`:side(item.hemisphere);
-    return `<div style="--item-delay:${Math.min(index*MOTION.stagger,MOTION.staggerCap)}ms" class="structure-row${hidden?' is-hidden':''}${selected?' selected':''}"><button class="row-main" data-ref="${escape(JSON.stringify(ref))}" aria-label="${item.type==='group'?'Explore':'Inspect'} ${escape(title)}">${item.type==='group'?'<span class="group-swatch">+</span>':`<span class="swatch" style="background:rgb(${(item.type==='parcel'&&store.state.colourblindSafe?renderer.safeColours.get(item.id):item.color).join(',')})"></span>`}<span class="row-name">${escape(title)}<small>${escape(count)}</small></span></button><button class="visibility-button" data-toggle="${escape(JSON.stringify(ref))}" aria-label="${hidden?'Show':'Hide'} ${escape(title)}" aria-pressed="${!hidden}">${eye(!hidden)}</button>${item.type==='group'?'<span class="row-arrow">›</span>':''}</div>`;
+    return `<div style="--item-delay:${Math.min(index*MOTION.stagger,MOTION.staggerCap)}ms" class="structure-row${hidden?' is-hidden':''}${selected?' selected':''}"><button class="row-main" data-ref="${escape(JSON.stringify(ref))}" aria-label="${item.type==='group'?'Explore':'Inspect'} ${escape(title)}">${item.type==='group'?'<span class="group-swatch">+</span>':`<span class="swatch" style="background:rgb(${(item.type==='parcel'&&store.state.colourblindSafe?renderer.safeColours.get(item.id):item.color).join(',')})"></span>`}<span class="row-name"><span class="structure-name" title="${escape(title)}">${escape(title)}</span><small>${escape(count)}</small></span></button><button class="visibility-button" data-toggle="${escape(JSON.stringify(ref))}" aria-label="${hidden?'Show':'Hide'} ${escape(title)}" aria-pressed="${!hidden}">${eye(!hidden)}</button>${item.type==='group'?'<span class="row-arrow">›</span>':''}</div>`;
   }).join('');
   if(target.innerHTML!==html){target.innerHTML=html;target.scrollTop=scroll;}
 }
@@ -98,6 +98,7 @@ function setTab(legend){
 }
 function renderControls(){
   const s=store.state;$('scheme').value=s.scheme;$('morph').value=s.morph;$('separation').value=s.separation;$('lift').value=s.lift;
+  $('scheme-chip').textContent=schemeName(s.scheme)+' ▾';
   $('curvature-shading').checked=s.curvatureShading;$('colourblind-safe').checked=s.colourblindSafe;
   const state=SURFACES[Math.round(s.morph)],deformed=s.morph>1.01||s.separation>.01||s.lift>.01;
   $('space-badge').textContent=deformed?'Display layout · not anatomical coordinates':'MNI152 · anatomical position';
@@ -138,6 +139,7 @@ function installUI(){
     if(action==='isolate'){store.update({isolation:store.state.isolation?null:ref});if(store.state.isolation)renderer.focus(ref);}
     if(action==='parent'){const parent=parentOf(ref);if(parent)store.update({nav:parent,selection:{type:'group',key:parent},...(ref.type==='parcel'?{scheme:refData(ref).scheme}:{})});}
   };
+  $('scheme-chip').onclick=()=>{setTab(true);const selector=$('scheme');selector.focus();try{selector.showPicker?.();}catch{/* Keyboard selection remains available when native pickers are unsupported. */}};
   $('scheme').onchange=e=>{$('legend-filter').value='';store.update({scheme:e.target.value});};
   $('legend-filter').oninput=()=>{renderLegend();$('legend-list').scrollTop=0;};
   $('curvature-shading').onchange=e=>store.update({curvatureShading:e.target.checked});

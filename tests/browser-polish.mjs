@@ -1,9 +1,9 @@
 import {chromium} from 'playwright';
 import {pathToFileURL} from 'node:url';
 import path from 'node:path';
-import fs from 'node:fs/promises';
+import {writeBrowserReport,writeBrowserFile} from './browser-report.mjs';
 import assert from 'node:assert/strict';
-const browser=await chromium.launch({headless:true,...(process.env.BROWSER_CHANNEL==='bundled'?{}:{channel:process.env.BROWSER_CHANNEL||'chrome'})});
+const browser=await chromium.launch({headless:true,ignoreDefaultArgs:['--hide-scrollbars'],...(process.env.BROWSER_CHANNEL==='bundled'?{}:{channel:process.env.BROWSER_CHANNEL||'chrome'})});
 const context=await browser.newContext({offline:true,viewport:{width:1920,height:1080},deviceScaleFactor:1});
 const page=await context.newPage(),errors=[],requests=[],checks=[],screenshots=[];
 page.on('pageerror',e=>errors.push(String(e)));page.on('console',m=>{if(m.type()==='error')errors.push(m.text());});page.on('request',r=>{if(/^https?:/.test(r.url()))requests.push(r.url());});
@@ -11,7 +11,7 @@ const settle=()=>page.waitForTimeout(900);
 const rects=selectors=>page.evaluate(selectors=>Object.fromEntries(selectors.map(s=>[s,document.querySelector(s).getBoundingClientRect().toJSON()])),selectors);
 const overlap=(a,b)=>Math.min(a.right,b.right)-Math.max(a.left,b.left)>1&&Math.min(a.bottom,b.bottom)-Math.max(a.top,b.top)>1;
 async function check(name,fn){await fn();checks.push(name);console.log('PASS',name);}
-async function shot(width,name){const file=`reports/polish-${width}-${name}.png`;await page.screenshot({path:file});screenshots.push(file.replace('reports/',''));}
+async function shot(width,name){const file=`reports/polish-${width}-${name}.png`;await writeBrowserFile(file,await page.screenshot());screenshots.push(file.replace('reports/',''));}
 async function reset(){await page.locator('#reset').click();await page.locator('#explore-tab').click();await page.keyboard.press('Escape');await settle();}
 async function setScheme(scheme){await page.locator('#legend-tab').click();await page.selectOption('#scheme',scheme);await settle();}
 async function lastReachable(selector){
@@ -39,7 +39,7 @@ try{
       await shot(width,'initial');
     });
     await check(`${width}×${height}: long legend is reachable with fixed selector and footer`,async()=>{
-      await setScheme('destrieux');const bottom=await lastReachable('#legend-list');assert.ok(bottom.reachable&&bottom.scrollable);assert.equal(bottom.scrollbar,'scroll');
+      await setScheme('destrieux');const bottom=await lastReachable('#legend-list');assert.ok(bottom.reachable&&bottom.scrollable);assert.equal(bottom.scrollbar,'auto');
       await page.waitForTimeout(250);assert.ok(await page.locator('#legend-list').evaluate(el=>el.parentElement.classList.contains('can-scroll-up')));
       const r=await rects(['.scheme-control','#legend-list','.visibility-tools']);assert.ok(r['.scheme-control'].bottom<=r['#legend-list'].top);assert.ok(r['#legend-list'].bottom<=r['.visibility-tools'].top+1);await shot(width,'legend-bottom');
       await page.locator('#legend-list').evaluate(el=>el.scrollTop=0);await page.waitForTimeout(250);assert.ok(await page.locator('#legend-list').evaluate(el=>el.parentElement.classList.contains('can-scroll-down')));
@@ -108,7 +108,7 @@ try{
   await check('Secondary text meets WCAG AA contrast in navigation, inspector, and controls',async()=>{
     await reset();await page.evaluate(()=>atlasApp.select({type:'structure',id:10}));await settle();
     const failures=await page.evaluate(()=>{
-      const selectors=['.eyebrow','.brand-caption','.nav-description','.row-name small','.panel-footer','.visibility-line','.stage-badges span','.inspector-body dt','.inspector-body dd','.viewer-footer>span','.layout-sliders label span','.camera-rail button span'];
+      const selectors=['.eyebrow','.brand-caption','.nav-description','.row-name small','.panel-footer','.visibility-line','.stage-badges span','#scheme-chip','.inspector-body dt','.inspector-body dd','.viewer-footer>span','.layout-sliders label span','.camera-rail button span'];
       const rgb=value=>{const numbers=value.match(/[\d.]+/g)?.map(Number)||[];return {c:numbers.slice(0,3),a:numbers[3]??1};};
       const luminance=c=>c.map(v=>{v/=255;return v<=.04045?v/12.92:((v+.055)/1.055)**2.4;}).reduce((s,v,i)=>s+v*[.2126,.7152,.0722][i],0);
       const bad=[];for(const selector of selectors)for(const el of document.querySelectorAll(selector)){
@@ -127,6 +127,6 @@ try{
     });assert.deepEqual(result.before,result.after);assert.equal(result.alpha,0);assert.equal(result.mask,true);
   });
   assert.deepEqual(errors,[]);assert.deepEqual(requests,[]);
-  await fs.writeFile('reports/polish-tests.json',JSON.stringify({passed:checks.length,checks,errors,networkRequests:requests,viewports:[[1920,1080],[1440,900],[1280,720]],screenshots,browser:await browser.version()},null,2));
-}catch(error){await page.screenshot({path:'reports/polish-failure.png'});await fs.writeFile('reports/polish-tests.json',JSON.stringify({passed:checks.length,checks,errors,failure:String(error)},null,2));console.error(error);console.error(errors);process.exitCode=1;}
+  await writeBrowserReport('reports/polish-tests.json',{passed:checks.length,checks,errors,networkRequests:requests,viewports:[[1920,1080],[1440,900],[1280,720]],screenshots,browser:await browser.version()});
+}catch(error){await writeBrowserFile('reports/polish-failure.png',await page.screenshot());await writeBrowserReport('reports/polish-tests.json',{passed:checks.length,checks,errors,failure:String(error)});console.error(error);console.error(errors);process.exitCode=1;}
 finally{await browser.close();}

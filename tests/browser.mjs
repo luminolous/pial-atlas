@@ -2,9 +2,10 @@ import {chromium} from 'playwright';
 import {pathToFileURL} from 'node:url';
 import path from 'node:path';
 import fs from 'node:fs/promises';
+import {writeBrowserReport,writeBrowserFile} from './browser-report.mjs';
 import assert from 'node:assert/strict';
 
-const launch={headless:true};
+const launch={headless:true,ignoreDefaultArgs:['--hide-scrollbars']};
 if(process.env.BROWSER_CHANNEL!=='bundled')launch.channel=process.env.BROWSER_CHANNEL||'chrome';
 const browser=await chromium.launch(launch);
 const context=await browser.newContext({viewport:{width:1440,height:1000},deviceScaleFactor:1,acceptDownloads:true,offline:true,hasTouch:true});
@@ -13,6 +14,7 @@ const errors=[],requests=[],checks=[];
 page.on('pageerror',e=>errors.push(String(e)));
 page.on('console',m=>{if(m.type()==='error')errors.push(m.text());});
 page.on('request',r=>{if(/^https?:/.test(r.url()))requests.push(r.url());});
+async function shot(file,options={}){await writeBrowserFile(file,await page.screenshot(options));}
 async function check(name,fn){await fn();checks.push(name);console.log('PASS',name);}
 async function scheme(value){const explorer=await page.locator('#explorer-view').isVisible();await page.locator('#legend-tab').click();await page.selectOption('#scheme',value);if(explorer)await page.locator('#explore-tab').click();}
 async function settled(){await page.waitForTimeout(850);}
@@ -22,7 +24,7 @@ try{
   await page.waitForFunction(()=>window.atlasApp?.ready||window.atlasError,null,{timeout:60000});
   assert.equal(await page.evaluate(()=>window.atlasError),undefined);await settled();
   await check('Loads from file:// while browser networking is offline',async()=>{assert.equal(await page.evaluate(()=>window.atlasApp.ready),true);assert.equal(requests.length,0);});
-  await page.screenshot({path:'reports/browser-initial.png'});
+  await shot('reports/browser-initial.png');
   await check('Anatomical hierarchy and inspector navigate to a real precentral parcel',async()=>{
     await page.getByRole('button',{name:'Explore Forebrain',exact:true}).click();
     await page.getByRole('button',{name:'Explore Left cerebral hemisphere',exact:true}).click();
@@ -99,7 +101,7 @@ try{
       await page.locator('#clip-reverse-'+i).check();assert.equal(await page.evaluate(i=>atlasApp.renderer.clipPlanes[i].normal.getComponent(i),i),-1);
       await page.locator('#clip-reverse-'+i).uncheck();
     }
-    await page.locator('[data-close="slices-popover"]').click();await page.screenshot({path:'reports/browser-slices.png'});
+    await page.locator('[data-close="slices-popover"]').click();await shot('reports/browser-slices.png');
     await page.locator('#reset').click();await settled();
   });
   await check('Legend, labels, automatic exploration, and PNG export work',async()=>{
@@ -107,17 +109,17 @@ try{
     await page.locator('#labels-toggle').click();await settled();assert.ok(await page.locator('.anatomical-label').count()>0);
     await scheme('yeo7');await settled();assert.ok(await page.locator('.anatomical-label').count()>0);await scheme('dk');
     await page.locator('#auto-toggle').click();assert.equal(await page.evaluate(()=>atlasApp.renderer.controls.autoRotate),true);await page.locator('#auto-toggle').click();
-    const downloadPromise=page.waitForEvent('download');await page.locator('#export').click();const download=await downloadPromise;assert.equal(download.suggestedFilename(),'Pial-Atlas.png');await download.saveAs('reports/exported-brain.png');
+    const downloadPromise=page.waitForEvent('download');await page.locator('#export').click();const download=await downloadPromise;assert.equal(download.suggestedFilename(),'Pial-Atlas.png');await writeBrowserFile('reports/exported-brain.png',await fs.readFile(await download.path()));
     await page.locator('#labels-toggle').click();await page.locator('#explore-tab').click();
   });
   await check('Inflated, spherical, and derived flat views render without geometry reload',async()=>{
     await scheme('yeo17');
-    for(const [name,m] of [['inflated',2],['sphere',3],['flat',4]]){await slider('morph',m);await settled();await page.locator('#toast').waitFor({state:'hidden'});await page.screenshot({path:`reports/browser-${name}.png`});assert.deepEqual(await page.evaluate(()=>atlasApp.renderer.cortices.map(m=>m.geometry.uuid)),initial.ids);}
+    for(const [name,m] of [['inflated',2],['sphere',3],['flat',4]]){await slider('morph',m);await settled();await page.locator('#toast').waitFor({state:'hidden'});await shot(`reports/browser-${name}.png`);assert.deepEqual(await page.evaluate(()=>atlasApp.renderer.cortices.map(m=>m.geometry.uuid)),initial.ids);}
     await page.locator('#reset').click();await settled();
   });
   await check('Seven-step guided journey runs and keeps hidden rules intact',async()=>{
     await page.evaluate(()=>atlasApp.store.toggle('hiddenStructures',18));await page.locator('#journey-start').click();
-    for(let i=0;i<7;i++){assert.match(await page.locator('#journey-step').textContent(),new RegExp(String(i+1).padStart(2,'0')));assert.ok(await page.evaluate(()=>atlasApp.store.state.hiddenStructures.includes(18)));await settled();if(i===5)await page.screenshot({path:'reports/browser-deep-journey.png'});await page.locator('#journey-next').click();}
+    for(let i=0;i<7;i++){assert.match(await page.locator('#journey-step').textContent(),new RegExp(String(i+1).padStart(2,'0')));assert.ok(await page.evaluate(()=>atlasApp.store.state.hiddenStructures.includes(18)));await settled();if(i===5)await shot('reports/browser-deep-journey.png');await page.locator('#journey-next').click();}
     assert.equal(await page.locator('#journey').isVisible(),false);await page.locator('#reset').click();
   });
   await check('Data, methods, full redistribution notices, and template caveat are accessible',async()=>{
@@ -137,15 +139,15 @@ try{
       assert.equal(layout.overflow,false,`Horizontal overflow at ${width}`);
       for(let i=0;i<3;i++)for(let j=i+1;j<3;j++){const a=layout.panels[i],b=layout.panels[j];assert.ok(Math.min(a.right,b.right)-Math.max(a.left,b.left)<=1||Math.min(a.bottom,b.bottom)-Math.max(a.top,b.top)<=1,`Panel overlap at ${width}`);}
       assert.ok(layout.stage.bottom<=layout.morph.top+1);assert.ok(layout.stage.height>=300);
-      await page.locator('#toast').waitFor({state:'hidden'});await page.screenshot({path:`reports/browser-${width}.png`,fullPage:true});
+      await page.locator('#toast').waitFor({state:'hidden'});await shot(`reports/browser-${width}.png`,{fullPage:true});
     }
   });
   assert.deepEqual(errors,[]);assert.equal(requests.length,0);
   checks.push('No JavaScript or WebGL console errors; no HTTP requests during the entire run');
-  await fs.writeFile('reports/browser-tests.json',JSON.stringify({passed:checks.length,checks,errors,networkRequests:requests,browser:await browser.version(),offline:true,launchFlags:'No file-access or web-security overrides'},null,2));
+  await writeBrowserReport('reports/browser-tests.json',{passed:checks.length,checks,errors,networkRequests:requests,browser:await browser.version(),offline:true,launchFlags:'No file-access or web-security overrides'});
   console.log(`${checks.length} browser checks passed.`);
 }catch(error){
   console.error('Browser test failed:',error);console.error('Browser console:',errors);
-  await page.screenshot({path:'reports/browser-failure.png',fullPage:true});
-  await fs.writeFile('reports/browser-tests.json',JSON.stringify({passed:checks.length,checks,errors,failure:String(error)},null,2));process.exitCode=1;
+  await shot('reports/browser-failure.png',{fullPage:true});
+  await writeBrowserReport('reports/browser-tests.json',{passed:checks.length,checks,errors,failure:String(error)});process.exitCode=1;
 }finally{await browser.close();}

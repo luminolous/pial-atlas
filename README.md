@@ -59,11 +59,17 @@ byte count and SHA-256 are recorded in `reports/build.json`.
 On narrow screens, the structure panel moves below the viewer so the anatomy
 and controls remain usable without horizontal scrolling.
 
-The navigation list has a visible scrollbar and scroll shadows. Its opacity,
+The navigation list uses 42 px structure rows and a thin, arrow-free custom
+scrollbar that appears only when the list overflows, with scroll shadows. Its opacity,
 undo, restore, and reset footer remains accessible. Selection opens a separate
 canvas inspector whose content scrolls independently of its action buttons.
 The guided journey uses its own dock, with the camera offset into the available
-space. Operating-system reduced-motion settings disable camera, layout, and
+space. The active-scheme chip beside the coordinate-space badge is available
+from both tabs and opens the parcellation selector in the legend. Home is the
+first button in the View group. Camera buttons are highlighted only when the
+actual position, target, up vector, and zoom match the requested preset. Manual
+rotation clears the highlight; opening a panel preserves a manually placed
+camera. Operating-system reduced-motion settings disable camera, layout, and
 colour animations and automatic rotation.
 
 ## Colours, shading, and area measurements
@@ -107,9 +113,13 @@ explicit opacity and glass controls continue to work.
 values attached to the corresponding source vertices in every morph state.
 Positive values darken sulci; negative values lighten gyri. The shared scale
 is the 95th percentile of absolute values across both hemispheres. Values are
-clamped to that scale and modulate relative HSL lightness by at most ±18%,
-after parcel colour and lighting, before selection dimming. Hue and saturation
-are preserved by the lightness operation. This is average convexity from
+clamped to that scale. Sulci multiply luminance by 0.80–1.00; gyri multiply
+it by 1.00–1.05. The shader applies one common gain to tone-mapped linear RGB,
+after parcel colour and lighting and before output encoding and selection
+dimming. This preserves linear-RGB channel ratios (chromaticity, hue, and
+saturation), instead of blending towards white or grey. Brightening is reduced
+when necessary to keep every channel in gamut without clipping. The original
+parcel lookup and categorical boundary lines remain unchanged. This is average convexity from
 FreeSurfer's inflation process, not a newly measured anatomical curvature or
 depth in millimetres; see [Destrieux et al. (2010), section 2.2](https://surfer.nmr.mgh.harvard.edu/ftp/articles/2010/2010_-_Destrieux_et_al._-_NeuroImage.pdf).
 
@@ -257,7 +267,11 @@ collisions, pinned inspector actions, toolbar spacing, and reduced motion.
 It also runs `tests/browser-appearance.mjs` at 1920×1080 and 1280×720 for every
 scheme, both palettes, lift and selection states, hemisphere toggles, source
 colour exceptions, area legends, filtering, and curvature shading in all five
-surface states. Eight additional geometry tests independently integrate white
+surface states. The suite also opens the scheme selector from both tabs, checks
+42 px structure rows and overflow-only scrollbars without arrow buttons, and
+verifies Home and all six view highlights before and after real pointer rotation.
+Rendered-pixel comparisons measure linear luminance bounds and chromaticity
+preservation in every scheme with both palettes. Eight additional geometry tests independently integrate white
 triangle areas and verify the medial-wall exclusion and percentages.
 
 Geometry and compression tests need the raw cache and intermediate buffers

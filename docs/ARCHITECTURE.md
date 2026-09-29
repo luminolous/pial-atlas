@@ -195,9 +195,26 @@ the same hemisphere/scheme's assigned cortex. Unassigned labels retain their
 measured area but have a null percentage because they are excluded.
 
 The sulc source attribute already shares fsaverage6 vertex correspondence. A
-single combined-hemisphere 95th-percentile absolute scale drives an HSL
-lightness operation of up to ±18% after lighting and before selection dimming.
+single combined-hemisphere 95th-percentile absolute scale drives a multiplicative
+linear-RGB gain after tone mapping and before output encoding and selection
+dimming. Positive sulc values darken by at most 20%; negative values brighten
+by at most 5%. A shared gain preserves chromaticity and is limited by the largest
+channel before multiplication, avoiding hue changes from channel clipping.
 The Curvature shading toggle changes a uniform, without replacing geometry.
+
+Camera framing intent and the active button are separate. `framingPreset` allows
+a preset to refit around overlays until the user takes control. `presetPose`
+records position, target, up vector, and zoom; `syncPreset()` compares the actual
+camera each frame before updating the highlight. Manual rotation, zoom, or
+automatic exploration therefore cannot leave a stale active button. Floating
+panels only change the projection offset after manual control, preserving the
+user's orientation. Focus clears the preset candidate. The small
+`AtlasOrbitControls` subclass refreshes the up-axis basis cached by the pinned
+Three.js 0.180.0 implementation, because dorsal and ventral presets animate
+`camera.up`. Camera tweens also clear residual orbit and pan inertia before starting, so
+previous manual or automatic rotation cannot move a completed preset. Both
+presets are tested with actual pointer drags; this adapter
+must be reviewed when upgrading Three.js.
 
 ## Additional layers
 

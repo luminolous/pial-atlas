@@ -28,7 +28,7 @@
       <section class="viewer-column" aria-label="Brain visualization">
 
         <div id="stage" class="stage">
-          <div class="stage-badges"><span id="space-badge">MNI152 · anatomical position</span><span id="hidden-badge" hidden></span></div>
+          <div class="stage-badges"><span id="space-badge">MNI152 · anatomical position</span><button id="scheme-chip" aria-label="Choose parcellation scheme" aria-controls="scheme" aria-haspopup="listbox" title="Choose parcellation scheme">Desikan–Killiany ▾</button><span id="hidden-badge" hidden></span></div>
           <div id="hover-label" class="hover-label" hidden></div>
           <div id="anatomical-labels" class="anatomical-labels"></div><div id="lift-labels" class="anatomical-labels" aria-label="Lift layout group labels"></div>
           <section id="inspector" class="inspector panel" aria-label="Structure inspector" hidden></section>
@@ -41,8 +41,7 @@
         <footer class="viewer-footer"><span>Population template · Research and education</span><button id="methods-link" class="text-button">Data & methods ↗</button></footer>
       </section>
       <aside class="camera-rail" aria-label="Camera and display tools">
-        <div class="rail-group"><span class="rail-label">Home</span><button data-preset="home" title="Reset camera" aria-label="Reset camera">⌂<span>Home</span></button></div>
-        <div class="rail-group"><span class="rail-label">View</span><div class="view-grid"><button data-preset="lateral" title="Left lateral view">L<span>Lateral</span></button><button data-preset="medial" title="Isolate the left hemisphere and show its medial surface">M<span>Medial</span></button><button data-preset="dorsal" title="Dorsal view">D<span>Dorsal</span></button><button data-preset="ventral" title="Ventral view">V<span>Ventral</span></button><button data-preset="anterior" title="Anterior view">A<span>Anterior</span></button><button data-preset="posterior" title="Posterior view">P<span>Posterior</span></button></div></div>
+        <div class="rail-group"><span class="rail-label">View</span><button class="home-view" data-preset="home" title="Reset camera" aria-label="Reset camera">⌂<span>Home</span></button><div class="view-grid"><button data-preset="lateral" title="Left lateral view">L<span>Lateral</span></button><button data-preset="medial" title="Isolate the left hemisphere and show its medial surface">M<span>Medial</span></button><button data-preset="dorsal" title="Dorsal view">D<span>Dorsal</span></button><button data-preset="ventral" title="Ventral view">V<span>Ventral</span></button><button data-preset="anterior" title="Anterior view">A<span>Anterior</span></button><button data-preset="posterior" title="Posterior view">P<span>Posterior</span></button></div></div>
         <div class="rail-group"><span class="rail-label">Display tools</span><div class="tool-grid"><button id="display-toggle" aria-label="Open display controls" title="Display controls">◐<span>Display</span></button><button id="slices-toggle" aria-label="Open slice controls" title="Clipping planes and MNI slices">▧<span>Slices</span></button><button id="labels-toggle" aria-label="Toggle anatomical labels" title="Anatomical labels">Aa<span>Labels</span></button><button id="auto-toggle" aria-label="Toggle automatic exploration" title="Automatic exploration">↻<span>Explore</span></button></div></div>
         <div class="rail-group"><span class="rail-label">Export</span><div class="tool-grid"><button id="fullscreen" aria-label="Toggle fullscreen" title="Fullscreen">⛶<span>Full</span></button><button id="export" aria-label="Export PNG image" title="Export PNG">↓<span>PNG</span></button></div></div>
       </aside>

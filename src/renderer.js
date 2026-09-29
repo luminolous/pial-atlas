@@ -7,6 +7,20 @@ import {BRAIN_PATHS} from './brand.js';
 import {accessibleColours,deepUsesSourceColour,WARM_GREY} from './appearance.js';
 import { SCHEMES, SURFACES, cortexVisibility, subcorticalVisibility } from './state.js';
 
+const ORBIT_Y_UP=new THREE.Vector3(0,1,0);
+class AtlasOrbitControls extends OrbitControls {
+  stopMotion(){
+    this._sphericalDelta.set(0,0,0);this._panOffset.set(0,0,0);this._scale=1;
+  }
+  update(deltaTime=null){
+    // Three.js 0.180.0 caches this basis at construction. Presets animate camera.up,
+    // so refresh the cached basis to keep dorsal and ventral dragging away from a pole.
+    this._quat.setFromUnitVectors(this.object.up,ORBIT_Y_UP);
+    this._quatInverse.copy(this._quat).invert();
+    return super.update(deltaTime);
+  }
+}
+
 // Future layers implement this small contract. Tracts, EEG, and connectomes are
 // deliberately absent; every spatial layer must declare its source-to-RAS map.
 export class LayerRegistry {
@@ -18,7 +32,7 @@ export class LayerRegistry {
 
 export class AtlasRenderer {
   constructor(container,atlas,onPick,onHover){
-    this.tweens=new Tweens();this.insets={left:0,right:0,top:30,bottom:38};this.activePreset='home';this.container=container;this.atlas=atlas;this.onPick=onPick;this.onHover=onHover;
+    this.tweens=new Tweens();this.insets={left:0,right:0,top:30,bottom:38};this.activePreset=null;this.framingPreset='home';this.container=container;this.atlas=atlas;this.onPick=onPick;this.onHover=onHover;
     this.scene=new THREE.Scene();this.scene.background=new THREE.Color('#eef2f4');
     this.camera=new THREE.OrthographicCamera(-150,150,120,-120,.1,2500);
     this.camera.up.set(0,0,1);this.camera.position.set(-285,-310,155);
@@ -30,10 +44,10 @@ export class AtlasRenderer {
     this.renderer.domElement.setAttribute('aria-label','Interactive three-dimensional brain atlas');
     this.renderer.domElement.setAttribute('role','img');this.renderer.domElement.tabIndex=0;
     container.prepend(this.renderer.domElement);
-    this.controls=new OrbitControls(this.camera,this.renderer.domElement);
+    this.controls=new AtlasOrbitControls(this.camera,this.renderer.domElement);
     this.controls.enableDamping=true;this.controls.dampingFactor=.09;this.controls.target.set(-4,-17,10);
     this.controls.minZoom=.1;this.controls.maxZoom=7;this.controls.zoomSpeed=.85;
-    this.controls.autoRotateSpeed=.65;this.controls.addEventListener('start',()=>{this.cameraTween=null;this.activePreset=null;this.onPreset?.(null);});
+    this.controls.autoRotateSpeed=.65;this.controls.addEventListener('start',()=>{this.cameraTween=null;this.framingPreset=null;});
     this.scene.add(new THREE.HemisphereLight('#ffffff','#a5b4c4',2.2));
     const key=new THREE.DirectionalLight('#fff8ef',3.1);key.position.set(-220,-50,300);this.scene.add(key);
     const fill=new THREE.DirectionalLight('#dceeff',2.1);fill.position.set(180,60,140);this.scene.add(fill);
@@ -81,7 +95,7 @@ export class AtlasRenderer {
     const w=this.container.clientWidth,h=this.container.clientHeight;if(!w||!h)return;
     this.renderer.setSize(w,h);this.camera.left=-120*w/h;this.camera.right=120*w/h;this.camera.top=120;this.camera.bottom=-120;
     this.applyFrameOffset();this.camera.updateProjectionMatrix();
-    if(this.state)this.preset(this.activePreset||'home');
+    if(this.state&&this.framingPreset)this.preset(this.framingPreset);
   }
   applyFrameOffset(){
     const w=this.container.clientWidth,h=this.container.clientHeight,i=this.insets;
@@ -92,7 +106,7 @@ export class AtlasRenderer {
     const next={...this.insets,...insets};if(JSON.stringify(next)===JSON.stringify(this.frameInsets||this.insets))return;
     const previous={...this.insets};this.tweens.to('insets',0,1,'layout',t=>{for(const key of Object.keys(next))this.insets[key]=previous[key]+(next[key]-previous[key])*t;this.applyFrameOffset();});
     this.frameInsets=next;
-    if(this.state)this.preset(this.activePreset||'home');
+    if(this.state&&this.framingPreset)this.preset(this.framingPreset);
   }
   update(state){
     const previous=this.state;this.state=state;
@@ -144,13 +158,14 @@ export class AtlasRenderer {
     }
     for(const key of ['morph','separation','lift'])if(!previous||state[key]!==previous[key])this.tweens.to(key,this[key],state[key],'layout',v=>this[key]=v);
     this.controls.autoRotate=state.auto&&!reducedMotion();this.controls.enableDamping=!reducedMotion();
+    if(this.controls.autoRotate)this.framingPreset=null;
     state.clips.forEach((c,i)=>{
       const normal=new THREE.Vector3();normal.setComponent(i,c.enabled?(c.reverse?-1:1):0);
       this.clipPlanes[i].set(normal,c.enabled?-c.position*(c.reverse?-1:1):1);this.sliceMeshes[i].visible=c.enabled;
       if(c.enabled&&(!previous||JSON.stringify(c)!==JSON.stringify(previous.clips[i])))this.updateSlice(i,c.position);
     });
     this.layers.update(state);
-    if(previous&&state.lift!==previous.lift&&this.activePreset==='deep')this.preset('deep');
+    if(previous&&state.lift!==previous.lift&&this.framingPreset==='deep')this.preset('deep');
   }
   hover(ref){this.uniforms.uHovered.value=ref?.type==='parcel'?ref.id:-1;this.uniforms.uHoverScheme.value=SCHEMES.indexOf(this.state?.scheme||'dk');}
   updateSlice(axis,coordinate){
@@ -189,7 +204,7 @@ export class AtlasRenderer {
       const tr=this.cameraTween,t=reducedMotion()?1:Math.min(1,(time-tr.start)/MOTION.camera),f=ease(t);
       this.camera.position.lerpVectors(tr.from,tr.to,f);this.controls.target.lerpVectors(tr.fromTarget,tr.target,f);this.camera.up.lerpVectors(tr.fromUp,tr.up,f).normalize();this.camera.zoom=THREE.MathUtils.lerp(tr.fromZoom,tr.zoom,f);this.camera.updateProjectionMatrix();if(t===1)this.cameraTween=null;
     }
-    this.controls.autoRotate=!!this.state?.auto&&!reducedMotion();this.controls.update();this.renderer.render(this.scene,this.camera);this.onFrame?.();
+    this.controls.autoRotate=!!this.state?.auto&&!reducedMotion();this.controls.update();this.syncPreset();this.renderer.render(this.scene,this.camera);this.onFrame?.();
   }
   isClipped(point){return this.clipPlanes.some(p=>p.normal.lengthSq()>0&&p.distanceToPoint(point)<0);}
   pick(event){
@@ -212,7 +227,18 @@ export class AtlasRenderer {
     }
     return null;
   }
-  tweenCamera(position,target,up=new THREE.Vector3(0,0,1),zoom=1){this.cameraTween={start:performance.now(),from:this.camera.position.clone(),to:position,fromTarget:this.controls.target.clone(),target,fromUp:this.camera.up.clone(),up,fromZoom:this.camera.zoom,zoom};}
+  tweenCamera(position,target,up=new THREE.Vector3(0,0,1),zoom=1){this.controls.stopMotion();this.cameraTween={start:performance.now(),from:this.camera.position.clone(),to:position,fromTarget:this.controls.target.clone(),target,fromUp:this.camera.up.clone(),up,fromZoom:this.camera.zoom,zoom};}
+  syncPreset(){
+    const p=this.presetPose;
+    // Account for OrbitControls' small pole offset without accepting a visible rotation.
+    const matches=p&&this.camera.position.distanceTo(p.position)<.002&&this.controls.target.distanceTo(p.target)<.002&&this.camera.up.distanceTo(p.up)<.00001&&Math.abs(this.camera.zoom-p.zoom)<.00001;
+    const active=matches?p.name:null;
+    if(active!==this.activePreset){this.activePreset=active;this.onPreset?.(active);}
+  }
+  framePreset(name,position,target,up,zoom){
+    this.framingPreset=name;this.presetPose={name,position:position.clone(),target:target.clone(),up:up.clone(),zoom};
+    this.tweenCamera(position,target,up,zoom);this.syncPreset();
+  }
   fitZoom(width,height,fraction=.70){
     const i=this.frameInsets||this.insets,w=this.container.clientWidth,h=this.container.clientHeight;
     const freeW=Math.max(120,w-i.left-i.right),freeH=Math.max(120,h-i.top-i.bottom);
@@ -229,20 +255,19 @@ export class AtlasRenderer {
     return {target,zoom:this.fitZoom(maxX-minX,maxY-minY,.78)};
   }
   preset(name){
-    this.activePreset=name;this.onPreset?.(name);
     if(name==='flat'){
-      const target=new THREE.Vector3(0,0,8);this.tweenCamera(new THREE.Vector3(0,-430,8),target,new THREE.Vector3(0,0,1),this.fitZoom(460,200,.85));return;
+      const target=new THREE.Vector3(0,0,8);this.framePreset(name,new THREE.Vector3(0,-430,8),target,new THREE.Vector3(0,0,1),this.fitZoom(460,200,.85));return;
     }
     if(name==='deep'){
       const b=this.liftLayout.bounds,fraction=(this.state?.lift||100)/100;
       const target=new THREE.Vector3((b.min[0]+b.max[0])/2,0,(b.min[2]+b.max[2])/2).multiplyScalar(fraction);
       const width=210+(b.max[0]-b.min[0]+30-210)*fraction,height=190+(b.max[2]-b.min[2]+40-190)*fraction;
-      this.tweenCamera(target.clone().add(new THREE.Vector3(0,-700,0)),target,new THREE.Vector3(0,0,1),this.fitZoom(width,height,.92));return;
+      this.framePreset(name,target.clone().add(new THREE.Vector3(0,-700,0)),target,new THREE.Vector3(0,0,1),this.fitZoom(width,height,.92));return;
     }
     const vectors={lateral:[-420,0,0],medial:[420,0,0],dorsal:[0,0,430],ventral:[0,0,-430],anterior:[0,430,0],posterior:[0,-430,0],home:[-285,-310,155]};
     const up=['dorsal','ventral'].includes(name)?new THREE.Vector3(0,1,0):new THREE.Vector3(0,0,1);
     const direction=new THREE.Vector3(...(vectors[name]||vectors.home)),{target,zoom}=this.anatomyFrame(direction,up);
-    this.tweenCamera(direction.add(target),target,up,zoom);
+    this.framePreset(name,direction.add(target),target,up,zoom);
   }
   focus(selection){
     const points=[],m=Math.min(4,this.morph),a=Math.floor(m),b=Math.min(4,a+1),f=m-a;
@@ -265,7 +290,7 @@ export class AtlasRenderer {
     }
     const up=Math.abs(direction.z)>.94?new THREE.Vector3(0,1,0):new THREE.Vector3(0,0,1),right=new THREE.Vector3().crossVectors(up,direction).normalize(),vertical=new THREE.Vector3().crossVectors(direction,right);
     let minX=Infinity,maxX=-Infinity,minY=Infinity,maxY=-Infinity;for(const p of points){const x=p.dot(right),y=p.dot(vertical);minX=Math.min(minX,x);maxX=Math.max(maxX,x);minY=Math.min(minY,y);maxY=Math.max(maxY,y);}
-    this.activePreset=null;this.onPreset?.(null);
+    this.framingPreset=null;this.presetPose=null;this.syncPreset();
     this.tweenCamera(center.clone().addScaledVector(direction,430),center,up,Math.min(4,this.fitZoom(Math.max(45,maxX-minX),Math.max(45,maxY-minY),.76)));
   }
   selectionCenter(selection){

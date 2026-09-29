@@ -1,8 +1,8 @@
 {
   "file": "Pial-Atlas.html",
-  "bytes": 5366059,
-  "megabytes": 5.366059,
-  "sha256": "66eedeeb9eaebc12dfcb5531963b3f5e4317a287950f163caf9b9b655932ab08",
+  "bytes": 5368663,
+  "megabytes": 5.368663,
+  "sha256": "37e8cd4b1979048cc5fdabe747d8c96525d414feb851100817ace2afab470681",
   "compression": "meshoptimizer 0.24 vertex and index codecs; positions quantized to 0.01 mm; gzip for labels, volume, and inline envelope",
   "counts": {
     "importedSurfaceStates": 8,

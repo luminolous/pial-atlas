@@ -12,7 +12,7 @@ anatomical accuracy in individual people.
 | State, hierarchy, visibility, lift, categorical fields, motion, and appearance | 16 passed | `reports/state-tests.txt` |
 | Real-browser interaction and responsive layout checks | 15 passed | `reports/browser-tests.json` |
 | New layout, rendering, motion, and contrast checks | 27 passed | `reports/polish-tests.json` |
-| Appearance, paired legend, palette, and sulc shading checks | 30 passed | `reports/appearance-tests.json` |
+| Appearance, paired legend, palette, and sulc shading checks | 36 passed | `reports/appearance-tests.json` |
 | Compression round trip | 73 typed buffers verified | `reports/compression.json` |
 | Maximum coordinate component quantization error | 0.005 mm | `reports/compression.json` |
 | Runtime HTTP requests with the browser offline | 0 | `reports/browser-tests.json` |
@@ -112,15 +112,34 @@ The final browser run reported no console errors.
 
 ## Appearance revision
 
-The appearance suite adds 30 checks and 66 screenshots at 1920×1080 and
+The appearance suite adds 36 checks and 90 screenshots at 1920×1080 and
 1280×720. Each of the four schemes is reviewed intact, with the accessible
 palette, with a cortical selection, lifted, and with a selected brainstem.
 The area tooltip, compact 36 px rows, per-hemisphere visibility, filter field,
 tab-specific source colours, and the 2×3 camera grid are exercised. The
 curvature toggle is compared on/off in all five surface states at both sizes;
-interior rendered pixels verify both darkening and lightening within ±18% relative
-lightness, allowing only byte-quantization tolerance, with the camera projection
-held fixed. Source geometry and all label attributes remain unchanged.
+interior rendered pixels verify linear luminance multipliers between 0.80 and
+1.05, accounting explicitly for the half-byte uncertainty of eight-bit readback,
+with the camera projection held fixed. Normalized linear-RGB channel ratios are
+compared to verify chromaticity preservation. The same comparison runs for
+every scheme with both palettes, and the unchanged categorical lines keep
+adjacent parcels distinguishable even when source colours are similar. Across 26 rendered-pixel
+comparisons, no sampled interior pixel exceeded the luminance bounds after
+readback quantization was accounted for. The maximum normalized linear-RGB
+channel-ratio difference was 0.007734. Camera pose and projection
+were both held fixed for these comparisons. Source geometry and all label attributes remain unchanged.
+
+Additional checks open the active-scheme chip from both tabs, confirm the native
+selector opens, measure every structure row at 42 px, and compare short and
+overflowing lists. The custom scrollbar is 6 px, has no arrow buttons, and
+reserves no space when the list fits. Browser automation retains normal
+scrollbar rendering instead of Chromium's headless hide-scrollbars default.
+Home is the first button in View. Home and all six presets are checked while
+tweening, after arrival, and after real pointer rotation. Opening and closing
+a panel preserves a manually placed camera; automatic exploration clears the
+preset highlight. Presets also clear residual rotation and pan inertia so the
+view stays still after arrival. Dorsal and ventral dragging also verifies the refreshed
+OrbitControls up-axis basis.
 
 Eight independent geometry cases integrate the raw native white triangles
 for all hemisphere/scheme combinations. They verify complete area accounting,
