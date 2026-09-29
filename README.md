@@ -5,7 +5,6 @@
   <!-- The GitHub stars and last-commit badges require a publicly accessible repository.. -->
   <p>
     <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="Code licence: MIT" /></a>
-    <a href="https://github.com/luminolous/pial-atlas/stargazers"><img src="https://img.shields.io/github/stars/luminolous/pial-atlas" alt="GitHub stars" /></a>
     <a href="https://github.com/luminolous/pial-atlas/commits"><img src="https://img.shields.io/github/last-commit/luminolous/pial-atlas" alt="GitHub last commit" /></a>
     <a href="https://github.com/mrdoob/three.js/releases/tag/r180"><img src="https://img.shields.io/badge/Three.js-0.180.0-6f849a.svg" alt="Three.js 0.180.0" /></a>
   </p>
