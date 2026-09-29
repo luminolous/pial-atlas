@@ -2,7 +2,7 @@
   <img src="assets/logo.svg" alt="Pial Atlas brain logo" width="160" />
   <h1>Pial Atlas</h1>
   <p><strong>An offline, interactive 3D atlas of the human brain built on real neuroimaging templates.</strong></p>
-  <!-- The GitHub stars and last-commit badges require a publicly accessible repository. -->
+  <!-- The GitHub stars and last-commit badges require a publicly accessible repository.. -->
   <p>
     <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="Code licence: MIT" /></a>
     <a href="https://github.com/luminolous/pial-atlas/stargazers"><img src="https://img.shields.io/github/stars/luminolous/pial-atlas" alt="GitHub stars" /></a>
