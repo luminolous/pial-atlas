@@ -7,7 +7,7 @@ import zipfile
 ROOT=Path(__file__).resolve().parents[1]
 OUTPUT=ROOT/'artifacts'
 TOP=['README.md','LICENSE','.gitignore','package.json','package-lock.json','requirements.in','requirements.lock','pytest.ini']
-DIRECTORIES=['src','pipeline','scripts','tests','data','docs','licenses','dist']
+DIRECTORIES=['src','pipeline','scripts','tests','data','docs','licenses','dist','assets']
 REPORTS=['build.json','alignment-metrics.json','alignment.png','compression.json','clean-rebuild.json','browser-tests.json','geometry-tests.xml','state-tests.txt','validation.json','browser-initial.png','browser-slices.png','browser-flat.png','browser-sphere.png','browser-inflated.png','browser-deep-journey.png','browser-1440.png','browser-1280.png','browser-900.png','browser-390.png','exported-brain.png']
 
 def main():
